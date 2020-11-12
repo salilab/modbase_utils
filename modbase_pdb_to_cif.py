@@ -88,15 +88,14 @@ class CifWriter:
         # Assign consecutive CIF numeric IDs from 1
         self.target = CifID()
         self.coord = CifID()
+        self.template = CifID()
+        self.alignment = CifID()
         if align:
-            self.template = CifID()
-            self.alignment = CifID()
             self.template.entity_id, self.target.entity_id = 1, 2
-            self.template.data_id, self.target.data_id = 1, 2
-            self.alignment.data_id, self.coord.data_id = 3, 4
         else:
             self.target.entity_id = 1
-            self.target.data_id, self.coord.data_id = 1, 2
+        self.template.data_id, self.target.data_id = 1, 2
+        self.alignment.data_id, self.coord.data_id = 3, 4
 
     def print(self, s):
         print(s, file=self.fh)
@@ -111,10 +110,10 @@ class CifWriter:
         if title:
             self.print("_struct.title '%s'" % title)
 
-    def write_exptl(self, expdta):
+    def write_exptl(self, model_id, expdta):
         if expdta.startswith('THEORETICAL MODEL, '):
             details = expdta[19:]
-            self.print("#\n_exptl.entry_id modbase_model")
+            self.print("#\n_exptl.entry_id modbase_model_%s" % model_id)
             self.print("_exptl.method 'THEORETICAL MODEL'")
             self.print("_exptl.details '%s'" % details)
 
@@ -246,10 +245,12 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
             p = self.align.template.primary
             l.write("1 %s %s" % (p, p))
 
-        with self.loop("ma_template_poly_segment",
-                  ["id", "template_id", "residue_number_begin",
-                   "residue_number_end"]) as l:
-            l.write("1 1 %d %d" % (pdb_beg, pdb_end))
+        if self.align:
+            # template_id makes no sense if we have no alignment
+            with self.loop("ma_template_poly_segment",
+                      ["id", "template_id", "residue_number_begin",
+                       "residue_number_end"]) as l:
+                l.write("1 1 %d %d" % (pdb_beg, pdb_end))
 
         with self.loop("ma_template_ref_db_details",
                 ["template_id", "db_name", "db_accession_code"]) as l:
@@ -264,10 +265,12 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                 ["asym_id", "entity_id", "details"]) as l:
             l.write("%s %d ." % (chain_id, self.target.entity_id))
 
-        with self.loop("ma_target_template_poly_mapping",
-                  ["id", "template_segment_id", "target_asym_id",
-                   "target_seq_id_begin", "target_seq_id_end"]) as l:
-            l.write("1 1 %s 1 %d" % (chain_id, len(sequence3)))
+        if self.align:
+            # Cannot write a template segment ID without an alignment
+            with self.loop("ma_target_template_poly_mapping",
+                      ["id", "template_segment_id", "target_asym_id",
+                       "target_seq_id_begin", "target_seq_id_end"]) as l:
+                l.write("1 1 %s 1 %d" % (chain_id, len(sequence3)))
 
     def write_alignment(self, chain_id, evalue):
         if not self.align:
@@ -304,31 +307,22 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                     % (self.target.entity_id, chain_id, len(sequence3)))
 
     def write_data(self):
-        ndata = 0
         with self.loop("ma_data", ["id", "name", "content_type"]) as l:
-            if self.align:
-                l.write("%d 'Template Structure' 'template structure'"
-                        % self.template.data_id)
-                ndata += 1
+            l.write("%d 'Template Structure' 'template structure'"
+                    % self.template.data_id)
             l.write("%d 'Target Sequence' target" % self.target.data_id)
-            ndata += 1
-            if self.align:
-                l.write("%d 'Target Template Alignment' "
-                        "'target-template alignment'" % self.alignment.data_id)
-                ndata += 1
+            l.write("%d 'Target Template Alignment' "
+                    "'target-template alignment'" % self.alignment.data_id)
             l.write("%d 'Target Structure' 'model coordinates'"
                     % self.coord.data_id)
-            ndata += 1
 
         # Put each data item in its own group
         with self.loop("ma_data_group",
                 ["ordinal_id", "group_id", "data_id"]) as l:
-            for i in range(1, ndata+1):
+            for i in range(1, 5):
                 l.write("%d %d %d" % (i,i,i))
 
     def write_protocol(self):
-        if not self.align:
-            return
         with self.loop('ma_protocol_step',
                 ['ordinal_id', 'protocol_id', 'step_id', 'method_type',
                  'step_name', 'software_group_id', 'input_data_group_id',
@@ -339,7 +333,7 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
             # takes as input the template
             # makes as output the alignment
             l.write("1 1 1 'template search' 'ModPipe %s' 1 %d %d"
-                    % (self.align.template.method,
+                    % (self.align.template.method if self.align else '.',
                        self.template.data_id, self.alignment.data_id))
 
             # step 2, modeling
@@ -491,7 +485,7 @@ class Structure:
 
         c = CifWriter(fh, align)
         c.write_header(self.remarks['MODPIPE MODEL ID'], self.title)
-        c.write_exptl(self.expdta)
+        c.write_exptl(self.remarks['MODPIPE MODEL ID'], self.expdta)
         c.write_audit_author()
         c.write_citation()
         c.write_software(self.modpipe_version, modeller_version)
