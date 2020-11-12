@@ -338,7 +338,7 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
             # ModPipe is software_id=1
             # takes as input the template
             # makes as output the alignment
-            l.write("1 1 1 'template search' 'ModPipe %s 1 %d %d"
+            l.write("1 1 1 'template search' 'ModPipe %s' 1 %d %d"
                     % (self.align.template.method,
                        self.template.data_id, self.alignment.data_id))
 
