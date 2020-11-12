@@ -521,7 +521,14 @@ def read_pdb(fh):
 if __name__ == '__main__':
     import argparse
     a = argparse.ArgumentParser(
-            description="Utility to convert ModBase PDB files to mmCIF")
+            description="Utility to convert ModBase PDB files to mmCIF",
+            epilog="""
+Convert a PDB file, downloaded from ModBase, to mmCIF format. This should
+preserve all information in the PDB file. If the corresponding alignment is
+also provided (-a flag) alignment information is added to the mmCIF (in which
+case the resulting mmCIF file should match that downloaded directly from
+ModBase).
+""")
     a.add_argument("-a", "--align", metavar="FILE", help="Input alignment file")
     a.add_argument("pdb", help="Input PDB file")
     a.add_argument("mmcif", help="Output mmCIF file")

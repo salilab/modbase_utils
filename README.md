@@ -6,7 +6,3 @@ comparative protein structure models:
 
 Convert a PDB file, downloaded from ModBase, to mmCIF format. This should
 preserve all information in the PDB file.
-
-Note that the resulting mmCIF file differs from an mmCIF downloaded directly
-from ModBase in that it contains no information on the modeling alignment
-(since this information is not present in ModBase PDB files).
