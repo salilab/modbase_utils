@@ -5,8 +5,8 @@ import subprocess
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 INPUTDIR = os.path.join(TOPDIR, 'test', 'input')
 
-inpdb = os.path.join(INPUTDIR,
-        'modbase-model_66b8fbc891f519c1ba8d8ad2e62c6caa.pdb')
+inpdb = os.path.join(
+    INPUTDIR, 'modbase-model_66b8fbc891f519c1ba8d8ad2e62c6caa.pdb')
 align = os.path.join(INPUTDIR, 'align.ali')
 script = os.path.join(TOPDIR, 'modbase_pdb_to_cif.py')
 
@@ -27,14 +27,14 @@ class Tests(unittest.TestCase):
     def test_without_align(self):
         """Test modbase_pdb_to_cif script without alignment"""
         out = 'test_without_align.cif'
-        p = subprocess.check_call([script, inpdb, out])
+        _ = subprocess.check_call([script, inpdb, out])
         self.compare_files(out, outcif)
         os.unlink(out)
 
     def test_with_align(self):
         """Test modbase_pdb_to_cif script with alignment"""
         out = 'test_with_align.cif'
-        p = subprocess.check_call([script, '-a', align, inpdb, out])
+        _ = subprocess.check_call([script, '-a', align, inpdb, out])
         self.compare_files(out, outaligncif)
         os.unlink(out)
 
