@@ -1,7 +1,0 @@
-os: linux
-language: python
-dist: focal
-python:
-  - 3.9
-script:
-  - nosetests test
