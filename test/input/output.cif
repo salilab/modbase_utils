@@ -569,6 +569,17 @@ A 1 .
 #
 #
 loop_
+_ma_target_ref_db_details.target_entity_id
+_ma_target_ref_db_details.db_name
+_ma_target_ref_db_details.db_code
+_ma_target_ref_db_details.db_accession
+_ma_target_ref_db_details.seq_db_isoform
+_ma_target_ref_db_details.seq_db_align_begin
+_ma_target_ref_db_details.seq_db_align_end
+1 UNP B5VTL7_YEAS6 B5VTL7 ? 1 444
+#
+#
+loop_
 _ma_struct_assembly.ordinal_id
 _ma_struct_assembly.assembly_id
 _ma_struct_assembly.entity_id

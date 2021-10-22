@@ -4,6 +4,7 @@ SOURCE
 AUTHOR     URSULA PIEPER, BENJAMIN WEBB, EASHWAR NARAYANAN, ANDREJ SALI        
 REMARK 220 Original ID: Custom ID                                     
 REMARK 220 EXPERIMENTAL DETAILS                                       
+REMARK 220 SEQDB: UniProt   B5VTL7                   B5VTL7_YEAS6
 REMARK 220 EXPERIMENT TYPE: THEORETICAL MODEL                         
 REMARK 220 METHOD: HOMOLOGY MODELING                                  
 REMARK 220 PROGRAM: MODPIPE                                           
