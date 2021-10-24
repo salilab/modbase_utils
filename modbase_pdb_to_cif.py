@@ -295,12 +295,16 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
 
         with self.loop(
                 "ma_target_ref_db_details",
-                ["target_entity_id", "db_name", "db_code",
-                 "db_accession", "seq_db_isoform",
+                ["target_entity_id", "db_name", "db_name_other_details",
+                 "db_code", "db_accession", "seq_db_isoform",
                  "seq_db_align_begin", "seq_db_align_end"]) as lp:
             for db in seqdb:
                 if db.name == 'UniProt':
-                    lp.write("%d UNP %s %s ? 1 %d"
+                    lp.write("%d UNP . %s %s ? 1 %d"
+                             % (self.target.entity_id, db.code, db.accession,
+                                len(sequence3)))
+                elif db.name == 'RefSeq':
+                    lp.write("%d Other RefSeq %s %s ? 1 %d"
                              % (self.target.entity_id, db.code, db.accession,
                                 len(sequence3)))
 
@@ -492,6 +496,10 @@ class Structure:
                 if len(val) == 3:
                     self.seqdb.append(SequenceDB(
                         name=val[0], accession=val[1], code=val[2]))
+                elif len(val) == 2 and val[0] == 'RefSeq' and '.' in val[1]:
+                    self.seqdb.append(SequenceDB(
+                        name=val[0], accession=val[1].split('.', 1)[0],
+                        code=val[1]))
             elif line.startswith('REMARK') and line.count(':') == 1:
                 key, val = [x.strip() for x in line[11:].split(':')]
                 self.remarks[key] = val
