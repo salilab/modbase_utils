@@ -303,10 +303,10 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                     lp.write("%d UNP . %s %s ? 1 %d"
                              % (self.target.entity_id, db.code, db.accession,
                                 len(sequence3)))
-                elif db.name == 'RefSeq':
-                    lp.write("%d Other RefSeq %s %s ? 1 %d"
-                             % (self.target.entity_id, db.code, db.accession,
-                                len(sequence3)))
+                elif db.name in ('RefSeq', 'PlasmoDB'):
+                    lp.write("%d Other %s %s %s ? 1 %d"
+                             % (self.target.entity_id, db.name, db.code,
+                                db.accession, len(sequence3)))
 
     def write_alignment(self, chain_id, evalue):
         if not self.align:
@@ -500,6 +500,9 @@ class Structure:
                     self.seqdb.append(SequenceDB(
                         name=val[0], accession=val[1].split('.', 1)[0],
                         code=val[1]))
+                elif len(val) == 2 and val[0] in ('PlasmoDB',):
+                    self.seqdb.append(SequenceDB(
+                        name=val[0], accession=val[1], code='.'))
             elif line.startswith('REMARK') and line.count(':') == 1:
                 key, val = [x.strip() for x in line[11:].split(':')]
                 self.remarks[key] = val
