@@ -201,7 +201,7 @@ loop_
 _ma_qa_metric_global.ordinal_id
 _ma_qa_metric_global.model_id
 _ma_qa_metric_global.metric_id
-_ma_qa_metric_global.value
+_ma_qa_metric_global.metric_value
 1 1 1 0.853452
 2 1 2 0.31
 3 1 3 12.996

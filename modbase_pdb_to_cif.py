@@ -414,7 +414,7 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
 
         with self.loop(
                 'ma_qa_metric_global',
-                ['ordinal_id', 'model_id', 'metric_id', 'value']) as lp:
+                ['ordinal_id', 'model_id', 'metric_id', 'metric_value']) as lp:
             lp.write("1 1 1 %s" % mpqs)
             lp.write("2 1 2 %s" % zdope)
             if tsvmod_rmsd:
