@@ -434,6 +434,21 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
         with self.loop('struct_asym', ['id', 'entity_id', 'details']) as lp:
             lp.write("%s %d ?" % (chain_id, self.target.entity_id))
 
+    def write_seq_scheme(self, chain_id, sequence3, tgtbeg, tgtend):
+        assert len(sequence3) == tgtend - tgtbeg + 1
+        entity_id = self.target.entity_id
+        with self.loop(
+            'pdbx_poly_seq_scheme',
+            ['asym_id', 'entity_id', 'seq_id', 'mon_id', 'pdb_seq_num',
+             'auth_seq_num', 'pdb_mon_id', 'auth_mon_id',
+             'pdb_strand_id']) as lp:
+            for i, s in enumerate(sequence3):
+                seqid = 1 + i
+                auth_seqid = tgtbeg + i
+                lp.write("%s %d %d %s %d %d %s %s %s"
+                         % (chain_id, entity_id, seqid, s, auth_seqid,
+                            auth_seqid, s, s, chain_id))
+
     def write_atom_site(self, chain_id, atoms, resnum_begin, resnum_end):
         elements = set()
         auth_seqid = resnum_begin
@@ -565,9 +580,10 @@ class Structure:
             self.remarks.get('zDOPE SCORE'), self.remarks.get('MPQS'))
         c.write_model_list()
         c.write_asym(chain_id)
-        c.write_atom_site(
-            chain_id, self.atoms, int(self.remarks['TARGET BEGIN']),
-            int(self.remarks['TARGET END']))
+        tgtbeg = int(self.remarks['TARGET BEGIN'])
+        tgtend = int(self.remarks['TARGET END'])
+        c.write_seq_scheme(chain_id, sequence3, tgtbeg, tgtend)
+        c.write_atom_site(chain_id, self.atoms, tgtbeg, tgtend)
 
 
 def read_pdb(fh):

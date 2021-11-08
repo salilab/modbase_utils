@@ -228,6 +228,19 @@ A 1 ?
 #
 #
 loop_
+_pdbx_poly_seq_scheme.asym_id
+_pdbx_poly_seq_scheme.entity_id
+_pdbx_poly_seq_scheme.seq_id
+_pdbx_poly_seq_scheme.mon_id
+_pdbx_poly_seq_scheme.pdb_seq_num
+_pdbx_poly_seq_scheme.auth_seq_num
+_pdbx_poly_seq_scheme.pdb_mon_id
+_pdbx_poly_seq_scheme.auth_mon_id
+_pdbx_poly_seq_scheme.pdb_strand_id
+A 1 1 GLU 9 9 GLU GLU A
+#
+#
+loop_
 _atom_site.group_PDB
 _atom_site.type_symbol
 _atom_site.label_atom_id
