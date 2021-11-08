@@ -38,6 +38,15 @@ class Tests(unittest.TestCase):
         self.compare_files(out, outaligncif)
         os.unlink(out)
 
+    def test_no_chain(self):
+        """Test modbase_pdb_to_cif script with a PDB with no chain ID"""
+        out = 'test_no_chain.cif'
+        inpdb = os.path.join(INPUTDIR, 'test_no_chain.pdb')
+        outcif = os.path.join(INPUTDIR, 'test_no_chain.cif')
+        _ = subprocess.check_call([script, inpdb, out])
+        self.compare_files(out, outcif)
+        os.unlink(out)
+
 
 if __name__ == '__main__':
     unittest.main()
