@@ -537,7 +537,7 @@ class Structure:
         """Write current structure out to a mmCIF file handle"""
         # mmCIF models must always have a chain ID; older ModBase PDB models
         # had a blank ID
-        chain_id = self.chain_id or 'A'
+        chain_id = self.chain_id.strip() or 'A'
         sequence3 = list(self.get_sequence3())
         modeller_version = self.get_modeller_version() or '?'
         if align:
