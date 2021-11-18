@@ -38,6 +38,14 @@ class Tests(unittest.TestCase):
         self.compare_files(out, outaligncif)
         os.unlink(out)
 
+    def test_bulk_headers(self):
+        """Test modbase_pdb_to_cif script without bulk-headers PDB"""
+        inpdb = os.path.join(INPUTDIR, 'test_bulk_headers.pdb')
+        out = 'test_without_align.cif'
+        _ = subprocess.check_call([script, inpdb, out])
+        self.compare_files(out, outcif)
+        os.unlink(out)
+
     def test_no_chain(self):
         """Test modbase_pdb_to_cif script with a PDB with no chain ID"""
         out = 'test_no_chain.cif'

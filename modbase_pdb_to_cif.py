@@ -576,8 +576,11 @@ class Structure:
         c.write_protocol()
         c.write_scores(
             self.remarks.get('TSVMOD METHOD'), self.remarks.get('TSVMOD RMSD'),
-            self.remarks.get('TSVMOD NO35'), self.remarks.get('GA341 SCORE'),
-            self.remarks.get('zDOPE SCORE'), self.remarks.get('MPQS'))
+            self.remarks.get('TSVMOD NO35'),
+            self.remarks.get('GA341 SCORE', self.remarks.get('MODEL SCORE')),
+            self.remarks.get('zDOPE SCORE', self.remarks.get('ZDOPE SCORE')),
+            self.remarks.get('MPQS',
+                             self.remarks.get('MODPIPE QUALITY SCORE')))
         c.write_model_list()
         c.write_asym(chain_id)
         tgtbeg = int(self.remarks['TARGET BEGIN'])
