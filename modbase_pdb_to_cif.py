@@ -31,7 +31,7 @@ one_to_three = {val: key for key, val in three_to_one.items()}
 
 def split_resnum(resnum):
     """Split a residue number into number and insertion code (or None)"""
-    m = re.match('([\d-]+)(.*)$', resnum)
+    m = re.match(r'([\d-]+)(.*)$', resnum)
     return m.group(1), m.group(2) or None
 
 
