@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
 import re
+import os
 import collections
+import gzip
+import ihm.reader
+import ihm.format
 
 # Single sequence in a Modeller alignment
 Sequence = collections.namedtuple(
@@ -23,6 +27,12 @@ three_to_one = {
 }
 
 one_to_three = {val: key for key, val in three_to_one.items()}
+
+
+def split_resnum(resnum):
+    """Split a residue number into number and insertion code (or None)"""
+    m = re.match('([\d-]+)(.*)$', resnum)
+    return m.group(1), m.group(2) or None
 
 
 class Alignment:
@@ -229,7 +239,8 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
             for i, s in enumerate(sequence3):
                 lp.write("%d %d %s ." % (self.target.entity_id, i+1, s))
 
-    def write_template_details(self, chain_id, pdb_beg, pdb_end, pdb_code):
+    def write_template_details(self, chain_id, tmpbeg, tmpend, tmpasym,
+                               pdb_code):
         if not self.align:
             return
         # Define the identity transformation (id=1)
@@ -252,8 +263,7 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
             # trans_matrix_id=1 is the identity transformation
             # model_num=1 because Modeller always uses the first PDB model
             lp.write('1 1 "reference database" polymer 1 %d %s %s 1 1'
-                     % (self.template.data_id, chain_id,
-                        self.align.template.chain))
+                     % (self.template.data_id, chain_id, tmpasym))
 
         with self.loop(
                 "ma_template_poly",
@@ -268,7 +278,7 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                     "ma_template_poly_segment",
                     ["id", "template_id", "residue_number_begin",
                      "residue_number_end"]) as lp:
-                lp.write("1 1 %d %d" % (pdb_beg, pdb_end))
+                lp.write("1 1 %d %d" % (tmpbeg, tmpend))
 
         with self.loop(
                 "ma_template_ref_db_details",
@@ -493,8 +503,49 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                 lp.write(element)
 
 
+class _PolySeqSchemeHandler(ihm.reader.Handler):
+    """Read pdbx_poly_seq_scheme table and map PDB to mmCIF numbering"""
+    def __init__(self, m):
+        self.m = m
+
+    def __call__(self, asym_id, seq_id, auth_seq_num, pdb_ins_code,
+                 pdb_strand_id):
+        mk = (pdb_strand_id, auth_seq_num, pdb_ins_code)
+        if mk in self.m:
+            self.m[mk] = (asym_id, seq_id)
+
+
+class Repository:
+    """Point to a directory containing a mirror of PDB in mmCIF format"""
+    def __init__(self, topdir):
+        self.topdir = topdir
+
+    def open_mmcif(self, pdb_code):
+        """Given a PDB code, return a file handle to the corresponding mmCIF"""
+        code = pdb_code.lower()
+        fname = os.path.join(self.topdir, code[1:3], code + '.cif.gz')
+        return gzip.open(fname, 'rt', encoding='latin1')
+
+    def map_ranges(self, fh, ranges):
+        """Map a list of PDB (chain, resnum_start, resnum_end) tuples to the
+           corresponding mmCIF (asym_id, seq_id_start, seq_id_end) values
+           and return. This is done by reading the pdbx_poly_seq_scheme
+           table in the given mmCIF file."""
+        m = collections.OrderedDict()
+        for r in ranges:
+            # If we can't find the PDB numbering, return it unchanged
+            m[r] = (r[0], r[1])
+        h = _PolySeqSchemeHandler(m)
+        r = ihm.format.CifReader(fh, {'_pdbx_poly_seq_scheme': h})
+        r.read_file()
+        return m.values()
+
+
 class Structure:
     """Handle read of PDB structure and write of mmCIF"""
+
+    def __init__(self, repo):
+        self.repo = repo
 
     def _read_pdb(self, fh):
         self.remarks = {}
@@ -539,6 +590,21 @@ class Structure:
             if m:
                 return m.group(1)
 
+    def get_mmcif_template_info(self, pdb_beg, pdb_end, pdb_chain, pdb_code):
+        """Given PDB ("author-provided") template information, map to
+           mmCIF seq_id range and asym_id, and return."""
+        # Split TARGET BEGIN/END records into residue number and insertion code
+        pdb_beg, pdb_beg_ins = split_resnum(pdb_beg)
+        pdb_end, pdb_end_ins = split_resnum(pdb_end)
+        pdb_ranges = [(pdb_chain, pdb_beg, pdb_beg_ins),
+                      (pdb_chain, pdb_end, pdb_end_ins)]
+        # Open the mmCIF file and map PDB ranges to mmCIF
+        with self.repo.open_mmcif(pdb_code) as fh:
+            cif_ranges = list(self.repo.map_ranges(fh, pdb_ranges))
+        # asym_id of start and end should be the same
+        assert(cif_ranges[0][0] == cif_ranges[1][0])
+        return(int(cif_ranges[0][1]), int(cif_ranges[1][1]), cif_ranges[0][0])
+
     def get_sequence3(self):
         """Get PDB sequence as a sequence of 3-letter residue names"""
         resnum = None
@@ -566,9 +632,12 @@ class Structure:
         c.write_software(self.modpipe_version, modeller_version)
         c.write_chem_comp()
         c.write_entity_details(sequence3)
+        template_pdb = self.remarks['TEMPLATE PDB']
+        tmpbeg, tmpend, tmpasym = self.get_mmcif_template_info(
+            self.remarks['TEMPLATE BEGIN'], self.remarks['TEMPLATE END'],
+            self.remarks['TEMPLATE CHAIN'], template_pdb)
         c.write_template_details(
-            chain_id, int(self.remarks['TEMPLATE BEGIN']),
-            int(self.remarks['TEMPLATE END']), self.remarks['TEMPLATE PDB'])
+            chain_id, tmpbeg, tmpend, tmpasym, template_pdb)
         c.write_target_details(chain_id, sequence3, self.seqdb)
         c.write_alignment(chain_id, self.remarks['EVALUE'])
         c.write_assembly(chain_id, sequence3)
@@ -589,9 +658,9 @@ class Structure:
         c.write_atom_site(chain_id, self.atoms, tgtbeg, tgtend)
 
 
-def read_pdb(fh):
+def read_pdb(fh, repo):
     """Read PDB file from filehandle and return a new Structure"""
-    s = Structure()
+    s = Structure(repo)
     s._read_pdb(fh)
     return s
 
@@ -609,11 +678,14 @@ ModBase).
 """)
     a.add_argument("-a", "--align", metavar="FILE",
                    help="Input alignment file")
+    a.add_argument("-r", "--repo", default='.',
+                   help="Directory containing repository of mmCIF files")
     a.add_argument("pdb", help="Input PDB file")
     a.add_argument("mmcif", help="Output mmCIF file")
     args = a.parse_args()
 
+    r = Repository(args.repo)
     with open(args.pdb) as fh:
-        s = read_pdb(fh)
+        s = read_pdb(fh, r)
     with open(args.mmcif, 'w') as fh:
         s.write_mmcif(fh, args.align)

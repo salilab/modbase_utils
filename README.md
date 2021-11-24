@@ -8,3 +8,8 @@ comparative protein structure models:
 
 Convert a PDB file, downloaded from ModBase, to mmCIF format. This should
 preserve all information in the PDB file.
+
+This utility requires a local mirror of PDB in compressed mmCIF format.
+Use the `-r` command line option to point to the location of this mirror.
+It also needs the [python-ihm](https://github.com/ihmwg/python-ihm)
+library, to read the mmCIF files for any template structures.
