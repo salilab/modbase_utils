@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 import subprocess
 
@@ -28,15 +29,16 @@ class Tests(unittest.TestCase):
     def test_without_align(self):
         """Test modbase_pdb_to_cif script without alignment"""
         out = 'test_without_align.cif'
-        _ = subprocess.check_call([script, '-r', repo, inpdb, out])
+        _ = subprocess.check_call([sys.executable, script, '-r', repo,
+                                   inpdb, out])
         self.compare_files(out, outcif)
         os.unlink(out)
 
     def test_with_align(self):
         """Test modbase_pdb_to_cif script with alignment"""
         out = 'test_with_align.cif'
-        _ = subprocess.check_call([script, '-r', repo, '-a', align,
-                                   inpdb, out])
+        _ = subprocess.check_call([sys.executable, script, '-r', repo,
+                                   '-a', align, inpdb, out])
         self.compare_files(out, outaligncif)
         os.unlink(out)
 
@@ -44,7 +46,8 @@ class Tests(unittest.TestCase):
         """Test modbase_pdb_to_cif script without bulk-headers PDB"""
         inpdb = os.path.join(INPUTDIR, 'test_bulk_headers.pdb')
         out = 'test_without_align.cif'
-        _ = subprocess.check_call([script, '-r', repo, inpdb, out])
+        _ = subprocess.check_call([sys.executable, script, '-r', repo,
+                                   inpdb, out])
         self.compare_files(out, outcif)
         os.unlink(out)
 
@@ -53,7 +56,8 @@ class Tests(unittest.TestCase):
         out = 'test_no_chain.cif'
         inpdb = os.path.join(INPUTDIR, 'test_no_chain.pdb')
         outcif = os.path.join(INPUTDIR, 'test_no_chain.cif')
-        _ = subprocess.check_call([script, '-r', repo, inpdb, out])
+        _ = subprocess.check_call([sys.executable, script, '-r', repo,
+                                   inpdb, out])
         self.compare_files(out, outcif)
         os.unlink(out)
 
