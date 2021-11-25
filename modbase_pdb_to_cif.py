@@ -593,7 +593,8 @@ class Structure:
     def get_mmcif_template_info(self, pdb_beg, pdb_end, pdb_chain, pdb_code):
         """Given PDB ("author-provided") template information, map to
            mmCIF seq_id range and asym_id, and return."""
-        # Split TARGET BEGIN/END records into residue number and insertion code
+        # Split TEMPLATE BEGIN/END records into residue number and
+        # insertion code
         pdb_beg, pdb_beg_ins = split_resnum(pdb_beg)
         pdb_end, pdb_end_ins = split_resnum(pdb_end)
         pdb_ranges = [(pdb_chain, pdb_beg, pdb_beg_ins),
