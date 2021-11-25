@@ -285,7 +285,7 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                 ["template_id", "db_name", "db_accession_code"]) as lp:
             lp.write("1 PDB %s" % pdb_code)
 
-    def write_target_details(self, chain_id, sequence3, seqdb):
+    def write_target_details(self, chain_id, sequence3, seqdb, tgtbeg, tgtend):
         with self.loop(
                 "ma_target_entity", ["entity_id", "data_id", "origin"]) as lp:
             lp.write("%d %d ." % (self.target.entity_id, self.target.data_id))
@@ -310,13 +310,13 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                  "seq_db_align_begin", "seq_db_align_end"]) as lp:
             for db in seqdb:
                 if db.name == 'UniProt':
-                    lp.write("%d UNP . %s %s ? 1 %d"
+                    lp.write("%d UNP . %s %s ? %d %d"
                              % (self.target.entity_id, db.code, db.accession,
-                                len(sequence3)))
+                                tgtbeg, tgtend))
                 elif db.name in ('RefSeq', 'PlasmoDB'):
-                    lp.write("%d Other %s %s %s ? 1 %d"
+                    lp.write("%d Other %s %s %s ? %d %d"
                              % (self.target.entity_id, db.name, db.code,
-                                db.accession, len(sequence3)))
+                                db.accession, tgtbeg, tgtend))
 
     def write_alignment(self, chain_id, evalue):
         if not self.align:
@@ -639,7 +639,9 @@ class Structure:
             self.remarks['TEMPLATE CHAIN'], template_pdb)
         c.write_template_details(
             chain_id, tmpbeg, tmpend, tmpasym, template_pdb)
-        c.write_target_details(chain_id, sequence3, self.seqdb)
+        tgtbeg = int(self.remarks['TARGET BEGIN'])
+        tgtend = int(self.remarks['TARGET END'])
+        c.write_target_details(chain_id, sequence3, self.seqdb, tgtbeg, tgtend)
         c.write_alignment(chain_id, self.remarks['EVALUE'])
         c.write_assembly(chain_id, sequence3)
         c.write_data()
@@ -653,8 +655,6 @@ class Structure:
                              self.remarks.get('MODPIPE QUALITY SCORE')))
         c.write_model_list()
         c.write_asym(chain_id)
-        tgtbeg = int(self.remarks['TARGET BEGIN'])
-        tgtend = int(self.remarks['TARGET END'])
         c.write_seq_scheme(chain_id, sequence3, tgtbeg, tgtend)
         c.write_atom_site(chain_id, self.atoms, tgtbeg, tgtend)
 

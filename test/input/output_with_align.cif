@@ -1069,8 +1069,8 @@ _ma_target_ref_db_details.db_accession
 _ma_target_ref_db_details.seq_db_isoform
 _ma_target_ref_db_details.seq_db_align_begin
 _ma_target_ref_db_details.seq_db_align_end
-2 UNP . B5VTL7_YEAS6 B5VTL7 ? 1 444
-2 Other RefSeq NP_015395.1 NP_015395 ? 1 444
+2 UNP . B5VTL7_YEAS6 B5VTL7 ? 9 452
+2 Other RefSeq NP_015395.1 NP_015395 ? 9 452
 #
 #
 loop_
