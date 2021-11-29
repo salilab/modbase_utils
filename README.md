@@ -6,8 +6,8 @@ comparative protein structure models:
 
 ## `modbase_pdb_to_cif.py`
 
-Convert a PDB file, downloaded from ModBase, to mmCIF format. This should
-preserve all information in the PDB file.
+Convert a PDB file, downloaded from ModBase, to mmCIF or BinaryCIF format.
+This should preserve all information in the PDB file.
 
 This utility requires a local mirror of PDB in compressed mmCIF format.
 Use the `-r` command line option to point to the location of this mirror.

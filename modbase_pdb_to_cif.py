@@ -7,6 +7,7 @@ import gzip
 import itertools
 import ihm.reader
 import ihm.format
+import ihm.format_bcif
 
 # Single sequence in a Modeller alignment
 Sequence = collections.namedtuple(
@@ -740,5 +741,9 @@ ModBase).
     r = Repository(args.repo)
     with open(args.pdb) as fh:
         s = read_pdb(fh, r)
-    with open(args.mmcif, 'w') as fh:
-        s.write_mmcif(ihm.format.CifWriter(fh), args.align)
+    if args.mmcif.endswith('.bcif'):
+        mode, writer = "wb", ihm.format_bcif.BinaryCifWriter
+    else:
+        mode, writer = "w", ihm.format.CifWriter
+    with open(args.mmcif, mode) as fh:
+        s.write_mmcif(writer(fh), args.align)
