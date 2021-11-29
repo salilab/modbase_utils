@@ -74,12 +74,12 @@ class Alignment:
             gapped=gapped, primary=gapped.replace('-', ''))
 
 
-class CifWriter(ihm.format.CifWriter):
-    def __init__(self, fh, align):
+class CifWriter:
+    def __init__(self, writer, align):
         class CifID:
             pass
 
-        super().__init__(fh)
+        self.writer = writer
         self.align = align
         # Assign consecutive CIF numeric IDs from 1
         self.target = CifID()
@@ -93,18 +93,24 @@ class CifWriter(ihm.format.CifWriter):
         self.template.data_id, self.target.data_id = 1, 2
         self.alignment.data_id, self.coord.data_id = 3, 4
 
+    def flush(self):
+        self.writer.flush()
+
+    def loop(self, category, keys):
+        return self.writer.loop(category, keys)
+
     def write_header(self, model_id, title):
-        self.fh.write("data_model_%s\n" % model_id)
-        self.fh.write("_entry.id modbase_model_%s\n" % model_id)
-        self.fh.write("_struct.entry_id modbase_model_%s\n" % model_id)
-        if title:
-            self.fh.write("_struct.title '%s'\n" % title)
-        self.fh.write("#\n")
+        self.writer.start_block("model_%s" % model_id)
+        entry_id = "modbase_model_%s" % model_id
+        with self.writer.category("_entry") as lp:
+            lp.write(id=entry_id)
+        with self.writer.category("_struct") as lp:
+            lp.write(entry_id=entry_id, title=title)
 
     def write_exptl(self, model_id, expdta):
         if expdta.startswith('THEORETICAL MODEL, '):
             details = expdta[19:]
-            with self.category("_exptl") as cat:
+            with self.writer.category("_exptl") as cat:
                 cat.write(entry_id="modbase_model_%s" % model_id,
                           method='THEORETICAL MODEL', details=details)
 
@@ -222,14 +228,19 @@ class CifWriter(ihm.format.CifWriter):
         if not self.align:
             return
         # Define the identity transformation (id=1)
-        self.fh.write("#\n_ma_template_trans_matrix.id 1\n")
-        for i in range(1, 4):
-            for j in range(1, 4):
-                self.fh.write(
-                    "_ma_template_trans_matrix.rot_matrix[%d][%d] %s\n"
-                    % (j, i, "1.0" if i == j else "0.0"))
-        for i in range(1, 4):
-            self.fh.write("_ma_template_trans_matrix.tr_vector[%d] 0.0\n" % i)
+        with self.writer.loop(
+                "_ma_template_trans_matrix",
+                ["id",
+                 "rot_matrix[1][1]", "rot_matrix[2][1]", "rot_matrix[3][1]",
+                 "rot_matrix[1][2]", "rot_matrix[2][2]", "rot_matrix[3][2]",
+                 "rot_matrix[1][3]", "rot_matrix[2][3]", "rot_matrix[3][3]",
+                 "tr_vector[1]", "tr_vector[2]", "tr_vector[3]"]) as lp:
+            lp.write(id=1, rot_matrix11="1.0", rot_matrix22="1.0",
+                     rot_matrix33="1.0", rot_matrix12="0.0",
+                     rot_matrix13="0.0", rot_matrix21="0.0",
+                     rot_matrix23="0.0", rot_matrix31="0.0",
+                     rot_matrix32="0.0", tr_vector1="0.0",
+                     tr_vector2="0.0", tr_vector3="0.0")
 
         with self.loop(
                 "_ma_template_details",
@@ -655,7 +666,7 @@ class Structure:
                 yield a[17:20].strip()  # residue name
                 resnum = this_resnum
 
-    def write_mmcif(self, fh, align):
+    def write_mmcif(self, writer, align):
         """Write current structure out to a mmCIF file handle"""
         # mmCIF models must always have a chain ID; older ModBase PDB models
         # had a blank ID
@@ -665,7 +676,7 @@ class Structure:
         if align:
             align = Alignment(align)
 
-        c = CifWriter(fh, align)
+        c = CifWriter(writer, align)
         c.write_header(self.remarks['MODPIPE MODEL ID'], self.title)
         c.write_exptl(self.remarks['MODPIPE MODEL ID'], self.expdta)
         c.write_audit_author()
@@ -697,6 +708,7 @@ class Structure:
         c.write_asym(chain_id)
         c.write_seq_scheme(chain_id, sequence3, tgtbeg, tgtend)
         c.write_atom_site(chain_id, self.atoms, tgtbeg, tgtend)
+        c.flush()
 
 
 def read_pdb(fh, repo):
@@ -729,4 +741,4 @@ ModBase).
     with open(args.pdb) as fh:
         s = read_pdb(fh, r)
     with open(args.mmcif, 'w') as fh:
-        s.write_mmcif(fh, args.align)
+        s.write_mmcif(ihm.format.CifWriter(fh), args.align)
