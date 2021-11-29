@@ -3,9 +3,9 @@ _entry.id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _struct.entry_id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _struct.title 'Model of S54091 hypothetical protein YPR070w - yeast (Saccha'
 #
+_exptl.details 'MODELLER SVN 2020/07/02 17:44:25'
 _exptl.entry_id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _exptl.method 'THEORETICAL MODEL'
-_exptl.details 'MODELLER SVN 2020/07/02 17:44:25'
 #
 loop_
 _audit_author.name
@@ -46,7 +46,8 @@ _software.version
 _software.type
 _software.location
 _software.citation_id
-1 ModPipe 'comparative modeling' SVN.r1693 program https://salilab.org/modpipe/ .
+1 ModPipe 'comparative modeling' SVN.r1693 program https://salilab.org/modpipe/
+.
 2 MODELLER 'comparative modeling' SVN program https://salilab.org/modeller/ 1
 #
 #
@@ -177,8 +178,8 @@ _ma_protocol_step.step_name
 _ma_protocol_step.software_group_id
 _ma_protocol_step.input_data_group_id
 _ma_protocol_step.output_data_group_id
-1 1 1 'template search' 'ModPipe .' 1 1 3
-2 1 2 'modeling' . 2 3 4
+1 1 1 'template search' ModPipe 1 1 3
+2 1 2 modeling . 2 3 4
 3 1 3 'model selection' . 1 4 4
 #
 #
@@ -258,15 +259,15 @@ _atom_site.occupancy
 _atom_site.B_iso_or_equiv
 _atom_site.label_entity_id
 _atom_site.id
-ATOM   N  N   GLU A 1 9 ? A .    6.074   25.683  -20.291   1.00  77.44 1 1
-ATOM   C  CA  GLU A 1 9 ? A .    4.616   25.924  -20.396   1.00  77.44 1 2
-ATOM   C  CB  GLU A 1 9 ? A .    4.343   27.032  -21.429   1.00  77.44 1 3
-ATOM   C  CG  GLU A 1 9 ? A .    4.806   28.417  -20.968   1.00  77.44 1 4
-ATOM   C  CD  GLU A 1 9 ? A .    4.505   29.414  -22.078   1.00  77.44 1 5
-ATOM   O  OE1 GLU A 1 9 ? A .    4.239   28.958  -23.221   1.00  77.44 1 6
-ATOM   O  OE2 GLU A 1 9 ? A .    4.543   30.643  -21.801   1.00  77.44 1 7
-ATOM   C  C   GLU A 1 9 ? A .    3.913   24.679  -20.823   1.00  77.44 1 8
-ATOM   O  O   GLU A 1 9 ? A .    2.695   24.664  -20.996   1.00  77.44 1 9
+ATOM N N GLU A 1 9 ? A . 6.074 25.683 -20.291 1.00 77.44 1 1
+ATOM C CA GLU A 1 9 ? A . 4.616 25.924 -20.396 1.00 77.44 1 2
+ATOM C CB GLU A 1 9 ? A . 4.343 27.032 -21.429 1.00 77.44 1 3
+ATOM C CG GLU A 1 9 ? A . 4.806 28.417 -20.968 1.00 77.44 1 4
+ATOM C CD GLU A 1 9 ? A . 4.505 29.414 -22.078 1.00 77.44 1 5
+ATOM O OE1 GLU A 1 9 ? A . 4.239 28.958 -23.221 1.00 77.44 1 6
+ATOM O OE2 GLU A 1 9 ? A . 4.543 30.643 -21.801 1.00 77.44 1 7
+ATOM C C GLU A 1 9 ? A . 3.913 24.679 -20.823 1.00 77.44 1 8
+ATOM O O GLU A 1 9 ? A . 2.695 24.664 -20.996 1.00 77.44 1 9
 #
 #
 loop_

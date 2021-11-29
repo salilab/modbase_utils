@@ -4,6 +4,7 @@ import re
 import os
 import collections
 import gzip
+import itertools
 import ihm.reader
 import ihm.format
 
@@ -73,36 +74,13 @@ class Alignment:
             gapped=gapped, primary=gapped.replace('-', ''))
 
 
-class CifLoop:
-    """Helper class to write an mmCIF loop construct"""
-
-    def __init__(self, fh, category, keys):
-        self.fh, self.category, self.keys = fh, category, keys
-        self._empty_loop = True
-
-    def write(self, line):
-        f = self.fh
-        if self._empty_loop:
-            f.write("#\nloop_\n")
-            for k in self.keys:
-                f.write("_%s.%s\n" % (self.category, k))
-            self._empty_loop = False
-        print(line, file=f)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if not self._empty_loop:
-            self.fh.write("#\n")
-
-
-class CifWriter:
+class CifWriter(ihm.format.CifWriter):
     def __init__(self, fh, align):
         class CifID:
             pass
 
-        self.fh, self.align = fh, align
+        super().__init__(fh)
+        self.align = align
         # Assign consecutive CIF numeric IDs from 1
         self.target = CifID()
         self.coord = CifID()
@@ -115,104 +93,99 @@ class CifWriter:
         self.template.data_id, self.target.data_id = 1, 2
         self.alignment.data_id, self.coord.data_id = 3, 4
 
-    def print(self, s):
-        print(s, file=self.fh)
-
-    def loop(self, category, keys):
-        return CifLoop(self.fh, category, keys)
-
     def write_header(self, model_id, title):
-        self.print("data_model_%s" % model_id)
-        self.print("_entry.id modbase_model_%s" % model_id)
-        self.print("_struct.entry_id modbase_model_%s" % model_id)
+        self.fh.write("data_model_%s\n" % model_id)
+        self.fh.write("_entry.id modbase_model_%s\n" % model_id)
+        self.fh.write("_struct.entry_id modbase_model_%s\n" % model_id)
         if title:
-            self.print("_struct.title '%s'" % title)
+            self.fh.write("_struct.title '%s'\n" % title)
+        self.fh.write("#\n")
 
     def write_exptl(self, model_id, expdta):
         if expdta.startswith('THEORETICAL MODEL, '):
             details = expdta[19:]
-            self.print("#\n_exptl.entry_id modbase_model_%s" % model_id)
-            self.print("_exptl.method 'THEORETICAL MODEL'")
-            self.print("_exptl.details '%s'" % details)
+            with self.category("_exptl") as cat:
+                cat.write(entry_id="modbase_model_%s" % model_id,
+                          method='THEORETICAL MODEL', details=details)
 
     def write_audit_author(self):
-        with self.loop("audit_author", ["name", "pdbx_ordinal"]) as lp:
-            lp.write("'Pieper U' 1")
-            lp.write("'Webb B' 2")
-            lp.write("'Narayanan E' 3")
-            lp.write("'Sali A' 4")
+        ordinal = itertools.count(1)
+        with self.loop("_audit_author", ["name", "pdbx_ordinal"]) as lp:
+            lp.write(name='Pieper U', pdbx_ordinal=next(ordinal))
+            lp.write(name='Webb B', pdbx_ordinal=next(ordinal))
+            lp.write(name='Narayanan E', pdbx_ordinal=next(ordinal))
+            lp.write(name='Sali A', pdbx_ordinal=next(ordinal))
 
     def write_citation(self):
         with self.loop(
-                "citation",
+                "_citation",
                 ["id", "title", "journal_abbrev", "journal_volume",
                  "page_first", "page_last", "year", "pdbx_database_id_PubMed",
                  "pdbx_database_id_DOI"]) as lp:
             # MODELLER paper
-            lp.write("1 'Comparative Protein Modelling by Satisfaction of "
-                     "Spatial Restraints'\n'J Mol Biol' 234 779 815 1993 "
-                     "8254673 10.1006/jmbi.1993.1626")
+            lp.write(id=1,
+                     title="Comparative Protein Modelling by Satisfaction of "
+                           "Spatial Restraints",
+                     journal_abbrev='J Mol Biol', journal_volume=234,
+                     page_first=779, page_last=815, year=1993,
+                     pdbx_database_id_PubMed=8254673,
+                     pdbx_database_id_DOI="10.1006/jmbi.1993.1626")
+        ordinal = itertools.count(1)
         with self.loop(
-                "citation_author", ["citation_id", "name", "ordinal"]) as lp:
-            lp.write("1 'Sali A' 1")
-            lp.write("1 'Blundell T L' 2")
+                "_citation_author", ["citation_id", "name", "ordinal"]) as lp:
+            lp.write(citation_id=1, name='Sali A', ordinal=next(ordinal))
+            lp.write(citation_id=1, name='Blundell T L', ordinal=next(ordinal))
 
     def write_software(self, modpipe_version, modeller_version):
+        ordinal = itertools.count(1)
         with self.loop(
-                "software",
+                "_software",
                 ["pdbx_ordinal", "name", "classification",
                  "version", "type", "location", "citation_id"]) as lp:
-            lp.write("1 ModPipe 'comparative modeling' %s program "
-                     "https://salilab.org/modpipe/ ." % modpipe_version)
-            lp.write("2 MODELLER 'comparative modeling' %s program "
-                     "https://salilab.org/modeller/ 1" % modeller_version)
+            lp.write(pdbx_ordinal=next(ordinal),
+                     name="ModPipe", classification='comparative modeling',
+                     version=modpipe_version, type="program",
+                     location="https://salilab.org/modpipe/",
+                     citation_id=None)
+            lp.write(pdbx_ordinal=next(ordinal),
+                     name="MODELLER", classification='comparative modeling',
+                     version=modeller_version, type="program",
+                     location="https://salilab.org/modeller/",
+                     citation_id=1)
 
         # Put each piece of software in its own group
         with self.loop(
-                "ma_software_group",
+                "_ma_software_group",
                 ["ordinal_id", "group_id", "software_id"]) as lp:
             for i in range(1, 3):
-                lp.write("%d %d %d" % (i, i, i))
+                lp.write(ordinal_id=i, group_id=i, software_id=i)
 
     def write_chem_comp(self):
         # Just assume all 20 standard amino acids are in the model
         with self.loop(
-                "chem_comp",
+                "_chem_comp",
                 ["id", "type", "name", "formula", "formula_weight"]) as lp:
-            lp.write("""ALA 'L-peptide linking' ALANINE 'C3 H7 N O2' 89.094
-ARG 'L-peptide linking' ARGININE 'C6 H15 N4 O2 1' 175.212
-ASN 'L-peptide linking' ASPARAGINE 'C4 H8 N2 O3' 132.119
-ASP 'L-peptide linking' 'ASPARTIC ACID' 'C4 H7 N O4' 133.103
-CYS 'L-peptide linking' CYSTEINE 'C3 H7 N O2 S' 121.154
-GLN 'L-peptide linking' GLUTAMINE 'C5 H10 N2 O3' 146.146
-GLU 'L-peptide linking' 'GLUTAMIC ACID' 'C5 H9 N O4' 147.130
-GLY 'peptide linking' GLYCINE 'C2 H5 N O2' 75.067
-HIS 'L-peptide linking' HISTIDINE 'C6 H10 N3 O2 1' 156.165
-ILE 'L-peptide linking' ISOLEUCINE 'C6 H13 N O2' 131.175
-LEU 'L-peptide linking' LEUCINE 'C6 H13 N O2' 131.175
-LYS 'L-peptide linking' LYSINE 'C6 H15 N2 O2 1' 147.198
-MET 'L-peptide linking' METHIONINE 'C5 H11 N O2 S' 149.208
-PHE 'L-peptide linking' PHENYLALANINE 'C9 H11 N O2' 165.192
-PRO 'L-peptide linking' PROLINE 'C5 H9 N O2' 115.132
-SER 'L-peptide linking' SERINE 'C3 H7 N O3' 105.093
-THR 'L-peptide linking' THREONINE 'C4 H9 N O3' 119.120
-TRP 'L-peptide linking' TRYPTOPHAN 'C11 H12 N2 O2' 204.229
-TYR 'L-peptide linking' TYROSINE 'C9 H11 N O3' 181.191
-VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
+            al = ihm.LPeptideAlphabet()
+            for code in "ARNDCQEGHILKMFPSTWYV":
+                cc = al[code]
+                lp.write(id=cc.id, type=cc.type, name=cc.name,
+                         formula=cc.formula, formula_weight=cc.formula_weight)
 
     def write_entity_details(self, sequence3):
         # entities for target (and template if we have alignment)
         with self.loop(
-                "entity",
+                "_entity",
                 ["id", "type", "src_method", "pdbx_description"]) as lp:
             if self.align:
-                lp.write("%d polymer man template" % self.template.entity_id)
-            lp.write("%d polymer man target" % self.target.entity_id)
+                lp.write(id=self.template.entity_id, type="polymer",
+                         src_method="man", pdbx_description="template")
+            lp.write(id=self.target.entity_id, type="polymer",
+                     src_method="man", pdbx_description="target")
 
         target_primary = "".join(three_to_one[x] for x in sequence3)
 
         with self.loop(
-                "entity_poly",
+                "_entity_poly",
                 ["entity_id", "type", "nstd_linkage",
                  "pdbx_seq_one_letter_code",
                  "pdbx_seq_one_letter_code_can"]) as lp:
@@ -223,37 +196,43 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                         "sequence in alignment:",
                         target_primary, self.align.target.primary)
                 p = self.align.template.primary
-                lp.write("%d polypeptide(L) no %s %s"
-                         % (self.template.entity_id, p, p))
-            lp.write("%d polypeptide(L) no %s %s"
-                     % (self.target.entity_id, target_primary, target_primary))
+                lp.write(entity_id=self.template.entity_id,
+                         type="polypeptide(L)", nstd_linkage="no",
+                         pdbx_seq_one_letter_code=p,
+                         pdbx_seq_one_letter_code_can=p)
+            lp.write(entity_id=self.target.entity_id,
+                     type="polypeptide(L)", nstd_linkage="no",
+                     pdbx_seq_one_letter_code=target_primary,
+                     pdbx_seq_one_letter_code_can=target_primary)
 
         with self.loop(
-                "entity_poly_seq",
+                "_entity_poly_seq",
                 ["entity_id", "num", "mon_id", "hetero"]) as lp:
             if self.align:
                 p = self.align.template.primary
                 for i, s in enumerate(p):
-                    lp.write("%d %d %s ."
-                             % (self.template.entity_id, i+1, one_to_three[s]))
+                    lp.write(entity_id=self.template.entity_id, num=i+1,
+                             mon_id=one_to_three[s], hetero=None)
             for i, s in enumerate(sequence3):
-                lp.write("%d %d %s ." % (self.target.entity_id, i+1, s))
+                lp.write(entity_id=self.target.entity_id, num=i+1,
+                         mon_id=s, hetero=None)
 
     def write_template_details(self, chain_id, tmpbeg, tmpend, tmpasym,
                                pdb_code):
         if not self.align:
             return
         # Define the identity transformation (id=1)
-        self.print("#\n_ma_template_trans_matrix.id 1")
+        self.fh.write("#\n_ma_template_trans_matrix.id 1\n")
         for i in range(1, 4):
             for j in range(1, 4):
-                self.print("_ma_template_trans_matrix.rot_matrix[%d][%d] %s"
-                           % (j, i, "1.0" if i == j else "0.0"))
+                self.fh.write(
+                    "_ma_template_trans_matrix.rot_matrix[%d][%d] %s\n"
+                    % (j, i, "1.0" if i == j else "0.0"))
         for i in range(1, 4):
-            self.print("_ma_template_trans_matrix.tr_vector[%d] 0.0" % i)
+            self.fh.write("_ma_template_trans_matrix.tr_vector[%d] 0.0\n" % i)
 
         with self.loop(
-                "ma_template_details",
+                "_ma_template_details",
                 ["ordinal_id", "template_id", "template_origin",
                  "template_entity_type", "template_trans_matrix_id",
                  "template_data_id", "target_asym_id",
@@ -262,61 +241,78 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
             # template structure is data_id=1
             # trans_matrix_id=1 is the identity transformation
             # model_num=1 because Modeller always uses the first PDB model
-            lp.write('1 1 "reference database" polymer 1 %d %s %s 1 1'
-                     % (self.template.data_id, chain_id, tmpasym))
+            lp.write(ordinal_id=1, template_id=1,
+                     template_origin="reference database",
+                     template_entity_type="polymer",
+                     template_trans_matrix_id=1,
+                     template_data_id=self.template.data_id,
+                     target_asym_id=chain_id, template_label_asym_id=tmpasym,
+                     template_label_entity_id=1, template_model_num=1)
 
         with self.loop(
-                "ma_template_poly",
+                "_ma_template_poly",
                 ["template_id", "seq_one_letter_code",
                  "seq_one_letter_code_can"]) as lp:
             p = self.align.template.primary
-            lp.write("1 %s %s" % (p, p))
+            lp.write(template_id=1, seq_one_letter_code=p,
+                     seq_one_letter_code_can=p)
 
         if self.align:
             # template_id makes no sense if we have no alignment
             with self.loop(
-                    "ma_template_poly_segment",
+                    "_ma_template_poly_segment",
                     ["id", "template_id", "residue_number_begin",
                      "residue_number_end"]) as lp:
-                lp.write("1 1 %d %d" % (tmpbeg, tmpend))
+                lp.write(id=1, template_id=1, residue_number_begin=tmpbeg,
+                         residue_number_end=tmpend)
 
         with self.loop(
-                "ma_template_ref_db_details",
+                "_ma_template_ref_db_details",
                 ["template_id", "db_name", "db_accession_code"]) as lp:
-            lp.write("1 PDB %s" % pdb_code)
+            lp.write(template_id=1, db_name="PDB", db_accession_code=pdb_code)
 
     def write_target_details(self, chain_id, sequence3, seqdb, tgtbeg, tgtend):
         with self.loop(
-                "ma_target_entity", ["entity_id", "data_id", "origin"]) as lp:
-            lp.write("%d %d ." % (self.target.entity_id, self.target.data_id))
+                "_ma_target_entity", ["entity_id", "data_id", "origin"]) as lp:
+            lp.write(entity_id=self.target.entity_id,
+                     data_id=self.target.data_id, origin=None)
 
         with self.loop(
-                "ma_target_entity_instance",
+                "_ma_target_entity_instance",
                 ["asym_id", "entity_id", "details"]) as lp:
-            lp.write("%s %d ." % (chain_id, self.target.entity_id))
+            lp.write(asym_id=chain_id, entity_id=self.target.entity_id,
+                     details=None)
 
         if self.align:
             # Cannot write a template segment ID without an alignment
             with self.loop(
-                    "ma_target_template_poly_mapping",
+                    "_ma_target_template_poly_mapping",
                     ["id", "template_segment_id", "target_asym_id",
                      "target_seq_id_begin", "target_seq_id_end"]) as lp:
-                lp.write("1 1 %s 1 %d" % (chain_id, len(sequence3)))
+                lp.write(id=1, template_segment_id=1, target_asym_id=chain_id,
+                         target_seq_id_begin=1,
+                         target_seq_id_end=len(sequence3))
 
         with self.loop(
-                "ma_target_ref_db_details",
+                "_ma_target_ref_db_details",
                 ["target_entity_id", "db_name", "db_name_other_details",
                  "db_code", "db_accession", "seq_db_isoform",
                  "seq_db_align_begin", "seq_db_align_end"]) as lp:
             for db in seqdb:
                 if db.name == 'UniProt':
-                    lp.write("%d UNP . %s %s ? %d %d"
-                             % (self.target.entity_id, db.code, db.accession,
-                                tgtbeg, tgtend))
+                    lp.write(target_entity_id=self.target.entity_id,
+                             db_name="UNP", db_name_other_details=None,
+                             db_code=db.code, db_accession=db.accession,
+                             seq_db_isoform=ihm.unknown,
+                             seq_db_align_begin=tgtbeg,
+                             seq_db_align_end=tgtend)
                 elif db.name in ('RefSeq', 'PlasmoDB'):
-                    lp.write("%d Other %s %s %s ? %d %d"
-                             % (self.target.entity_id, db.name, db.code,
-                                db.accession, tgtbeg, tgtend))
+                    lp.write(target_entity_id=self.target.entity_id,
+                             db_name="Other", db_name_other_details=db.name,
+                             db_code=db.code, db_accession=db.accession,
+                             seq_db_isoform=ihm.unknown,
+                             seq_db_align_begin=tgtbeg,
+                             seq_db_align_end=tgtend)
 
     def write_alignment(self, chain_id, evalue):
         if not self.align:
@@ -324,150 +320,191 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
         # Just one target-template alignment (one template, one chain) so this
         # table is pretty simple:
         with self.loop(
-                "ma_alignment_info",
+                "_ma_alignment_info",
                 ["alignment_id", "data_id", "software_id",
                  "alignment_length", "alignment_type",
                  "alignment_mode"]) as lp:
             # ModPipe is software_id=1
-            lp.write('1 %d 1 %d "target-template pairwise alignment" global'
-                     % (self.alignment.data_id,
-                        len(self.align.template.gapped)))
+            lp.write(alignment_id=1, data_id=self.alignment.data_id,
+                     software_id=1,
+                     alignment_length=len(self.align.template.gapped),
+                     alignment_type="target-template pairwise alignment",
+                     alignment_mode="global")
 
         with self.loop(
-                "ma_alignment_details",
+                "_ma_alignment_details",
                 ["ordinal_id", "alignment_id", "template_segment_id",
                  "target_asym_id", "score_type", "score_value"]) as lp:
-            lp.write("1 1 1 %s 'BLAST e-value' %s" % (chain_id, evalue))
+            lp.write(ordinal_id=1, alignment_id=1, template_segment_id=1,
+                     target_asym_id=chain_id, score_type='BLAST e-value',
+                     score_value=evalue)
 
         with self.loop(
-                "ma_alignment",
+                "_ma_alignment",
                 ["ordinal_id", "alignment_id", "target_template_flag",
                  "sequence"]) as lp:
+            ordinal = itertools.count(1)
             # Template (flag=2)
-            lp.write("1 1 2 %s" % self.align.template.gapped)
+            lp.write(ordinal_id=next(ordinal), alignment_id=1,
+                     target_template_flag=2,
+                     sequence=self.align.template.gapped)
             # Target (flag=1)
-            lp.write("2 1 1 %s" % self.align.target.gapped)
+            lp.write(ordinal_id=next(ordinal), alignment_id=1,
+                     target_template_flag=1,
+                     sequence=self.align.target.gapped)
 
     def write_assembly(self, chain_id, sequence3):
         with self.loop(
-                'ma_struct_assembly',
+                '_ma_struct_assembly',
                 ['ordinal_id', 'assembly_id', 'entity_id', 'asym_id',
                  'seq_id_begin', 'seq_id_end']) as lp:
             # Simple assembly of a single chain
-            lp.write("1 1 %d %s 1 %d"
-                     % (self.target.entity_id, chain_id, len(sequence3)))
+            lp.write(ordinal_id=1, assembly_id=1,
+                     entity_id=self.target.entity_id, asym_id=chain_id,
+                     seq_id_begin=1, seq_id_end=len(sequence3))
 
     def write_data(self):
-        with self.loop("ma_data", ["id", "name", "content_type"]) as lp:
-            lp.write("%d 'Template Structure' 'template structure'"
-                     % self.template.data_id)
-            lp.write("%d 'Target Sequence' target" % self.target.data_id)
-            lp.write("%d 'Target Template Alignment' "
-                     "'target-template alignment'" % self.alignment.data_id)
-            lp.write("%d 'Target Structure' 'model coordinates'"
-                     % self.coord.data_id)
+        with self.loop("_ma_data", ["id", "name", "content_type"]) as lp:
+            lp.write(id=self.template.data_id, name='Template Structure',
+                     content_type='template structure')
+            lp.write(id=self.target.data_id, name='Target Sequence',
+                     content_type='target')
+            lp.write(id=self.alignment.data_id,
+                     name='Target Template Alignment',
+                     content_type='target-template alignment')
+            lp.write(id=self.coord.data_id,
+                     name='Target Structure',
+                     content_type='model coordinates')
 
         # Put each data item in its own group
         with self.loop(
-                "ma_data_group", ["ordinal_id", "group_id", "data_id"]) as lp:
+                "_ma_data_group", ["ordinal_id", "group_id", "data_id"]) as lp:
             for i in range(1, 5):
-                lp.write("%d %d %d" % (i, i, i))
+                lp.write(ordinal_id=i, group_id=i, data_id=i)
 
     def write_protocol(self):
         with self.loop(
-                'ma_protocol_step',
+                '_ma_protocol_step',
                 ['ordinal_id', 'protocol_id', 'step_id', 'method_type',
                  'step_name', 'software_group_id', 'input_data_group_id',
                  'output_data_group_id']) as lp:
+            ordinal = itertools.count(1)
             # step 1, template search
             # template source is the ModPipe fold assignment method
             # ModPipe is software_id=1
             # takes as input the template
             # makes as output the alignment
-            lp.write("1 1 1 'template search' 'ModPipe %s' 1 %d %d"
-                     % (self.align.template.method if self.align else '.',
-                        self.template.data_id, self.alignment.data_id))
+            mth = " %s" % self.align.template.method if self.align else ''
+            lp.write(ordinal_id=next(ordinal), protocol_id=1, step_id=1,
+                     method_type='template search',
+                     step_name='ModPipe%s' % mth, software_group_id=1,
+                     input_data_group_id=self.template.data_id,
+                     output_data_group_id=self.alignment.data_id)
 
             # step 2, modeling
             # MODELLER is software_id=2
             # takes as input the alignment
             # makes as output the coordinates
-            lp.write("2 1 2 'modeling' . 2 %d %d"
-                     % (self.alignment.data_id, self.coord.data_id))
+            lp.write(ordinal_id=next(ordinal), protocol_id=1, step_id=2,
+                     method_type='modeling',
+                     step_name=None, software_group_id=2,
+                     input_data_group_id=self.alignment.data_id,
+                     output_data_group_id=self.coord.data_id)
 
             # step 3, model selection
             # takes as input the coordinates and returns them unchanged
-            lp.write("3 1 3 'model selection' . 1 %d %d"
-                     % (self.coord.data_id, self.coord.data_id))
+            lp.write(ordinal_id=next(ordinal), protocol_id=1, step_id=3,
+                     method_type='model selection',
+                     step_name=None, software_group_id=1,
+                     input_data_group_id=self.coord.data_id,
+                     output_data_group_id=self.coord.data_id)
 
     def write_scores(self, tsvmod_method, tsvmod_rmsd, tsvmod_no35, ga341,
                      zdope, mpqs):
         if not mpqs:
             return
+        ordinal = itertools.count(1)
         with self.loop(
-                'ma_qa_metric',
+                '_ma_qa_metric',
                 ['id', 'name', 'description', 'type', 'mode',
                  'other_details', 'software_group_id']) as lp:
             # ModPipe is software_id=1
-            lp.write(
-                "1 MPQS 'ModPipe Quality Score' other global\n"
-                "'composite score, values >1.1 are considered reliable' 1")
+            lp.write(id=next(ordinal), name='MPQS',
+                     description='ModPipe Quality Score',
+                     type="other", mode="global",
+                     other_details="composite score, values >1.1 are "
+                                   "considered reliable",
+                     software_group_id=1)
 
             # MODELLER is software_id=2
-            lp.write("2 zDOPE 'Normalized DOPE' zscore global . 2")
+            lp.write(id=next(ordinal), name="zDOPE",
+                     description='Normalized DOPE',
+                     type="zscore", mode="global", software_group_id=2)
 
             if tsvmod_rmsd:
-                lp.write("3 'TSVMod RMSD' 'TSVMod predicted RMSD (%s)' "
-                         "distance global . ." % tsvmod_method)
-                lp.write("4 'TSVMod NO35' 'TSVMod predicted native "
-                         "overlap (%s)' other global . ." % tsvmod_method)
+                lp.write(id=next(ordinal), name='TSVMod RMSD',
+                         description='TSVMod predicted RMSD (%s)'
+                                     % tsvmod_method,
+                         type="distance", mode="global")
+                lp.write(id=next(ordinal), name='TSVMod NO35',
+                         description="TSVMod predicted native "
+                                     "overlap (%s)" % tsvmod_method,
+                         type="other", mode="global")
 
         with self.loop(
-                'ma_qa_metric_global',
+                '_ma_qa_metric_global',
                 ['ordinal_id', 'model_id', 'metric_id', 'metric_value']) as lp:
-            lp.write("1 1 1 %s" % mpqs)
-            lp.write("2 1 2 %s" % zdope)
+            ordinal = itertools.count(1)
+            lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=1,
+                     metric_value=mpqs)
+            lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=2,
+                     metric_value=zdope)
             if tsvmod_rmsd:
-                lp.write("3 1 3 %s" % tsvmod_rmsd)
-                lp.write("4 1 4 %s" % tsvmod_no35)
+                lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=3,
+                         metric_value=tsvmod_rmsd)
+                lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=4,
+                         metric_value=tsvmod_no35)
 
     def write_model_list(self):
         with self.loop(
-                'ma_model_list',
+                '_ma_model_list',
                 ['ordinal_id', 'model_id', 'model_group_id', 'model_name',
                  'model_group_name', 'assembly_id', 'data_id',
                  'model_type']) as lp:
-            lp.write("1 1 1 'Selected model' . 1 %d 'Homology model'"
-                     % self.coord.data_id)
+            lp.write(ordinal_id=1, model_id=1, model_group_id=1,
+                     model_name='Selected model', assembly_id=1,
+                     data_id=self.coord.data_id, model_type='Homology model')
 
     def write_asym(self, chain_id):
-        with self.loop('struct_asym', ['id', 'entity_id', 'details']) as lp:
-            lp.write("%s %d ?" % (chain_id, self.target.entity_id))
+        with self.loop('_struct_asym', ['id', 'entity_id', 'details']) as lp:
+            lp.write(id=chain_id, entity_id=self.target.entity_id,
+                     details=ihm.unknown)
 
     def write_seq_scheme(self, chain_id, sequence3, tgtbeg, tgtend):
         assert len(sequence3) == tgtend - tgtbeg + 1
         entity_id = self.target.entity_id
         with self.loop(
-            'pdbx_poly_seq_scheme',
+            '_pdbx_poly_seq_scheme',
             ['asym_id', 'entity_id', 'seq_id', 'mon_id', 'pdb_seq_num',
              'auth_seq_num', 'pdb_mon_id', 'auth_mon_id',
              'pdb_strand_id']) as lp:
             for i, s in enumerate(sequence3):
                 seqid = 1 + i
                 auth_seqid = tgtbeg + i
-                lp.write("%s %d %d %s %d %d %s %s %s"
-                         % (chain_id, entity_id, seqid, s, auth_seqid,
-                            auth_seqid, s, s, chain_id))
+                lp.write(asym_id=chain_id, entity_id=entity_id, seq_id=seqid,
+                         mon_id=s, pdb_seq_num=auth_seqid,
+                         auth_seq_num=auth_seqid, pdb_mon_id=s, auth_mon_id=s,
+                         pdb_strand_id=chain_id)
 
     def write_atom_site(self, chain_id, atoms, resnum_begin, resnum_end):
         elements = set()
         auth_seqid = resnum_begin
         entity_id = self.target.entity_id
         seqid = 1
-        ordinal = 1
+        ordinal = itertools.count(1)
         pdb_resnum = None
         with self.loop(
-            'atom_site',
+            '_atom_site',
             ['group_PDB', 'type_symbol', 'label_atom_id',
              'label_comp_id', 'label_asym_id', 'label_seq_id',
              'auth_seq_id', 'pdbx_PDB_ins_code', 'auth_asym_id',
@@ -480,27 +517,30 @@ VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148""")
                     auth_seqid += 1
                     seqid += 1
                 pdb_resnum = pdb_this_resnum
-                inscode = a[26:27].strip() or '?'
-                group_pdb = a[:6]
-                element = a[76:78].strip() or '?'
+                inscode = a[26:27].strip() or ihm.unknown
+                group_pdb = a[:6].strip()
+                element = a[76:78].strip() or ihm.unknown
                 elements.add(element)
-                atmnam = a[12:16]
-                resnam = a[17:20]
-                x = a[30:38]
-                y = a[38:46]
-                z = a[46:54]
-                occ = a[54:60]
-                tfac = a[60:66]
-                lp.write("%s %s %s %s %s %d %d %s %s . %s %s %s %s %s %d %d"
-                         % (group_pdb, element, atmnam, resnam, chain_id,
-                            seqid, auth_seqid, inscode, chain_id, x, y, z,
-                            occ, tfac, entity_id, ordinal))
-                ordinal += 1
+                atmnam = a[12:16].strip()
+                resnam = a[17:20].strip()
+                x = a[30:38].strip()
+                y = a[38:46].strip()
+                z = a[46:54].strip()
+                occ = a[54:60].strip()
+                tfac = a[60:66].strip()
+                lp.write(group_PDB=group_pdb, type_symbol=element,
+                         label_atom_id=atmnam, label_comp_id=resnam,
+                         label_asym_id=chain_id, label_seq_id=seqid,
+                         auth_seq_id=auth_seqid, pdbx_PDB_ins_code=inscode,
+                         auth_asym_id=chain_id, label_alt_id=None, Cartn_x=x,
+                         Cartn_y=y, Cartn_z=z, occupancy=occ,
+                         B_iso_or_equiv=tfac, label_entity_id=entity_id,
+                         id=next(ordinal))
         assert auth_seqid == resnum_end
 
-        with CifLoop(fh, 'atom_type', ['symbol']) as lp:
+        with self.loop('_atom_type', ['symbol']) as lp:
             for element in sorted(elements):
-                lp.write(element)
+                lp.write(symbol=element)
 
 
 class _PolySeqSchemeHandler(ihm.reader.Handler):
