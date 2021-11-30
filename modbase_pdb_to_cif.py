@@ -521,7 +521,8 @@ class CifWriter:
              'label_comp_id', 'label_asym_id', 'label_seq_id',
              'auth_seq_id', 'pdbx_PDB_ins_code', 'auth_asym_id',
              'label_alt_id', 'Cartn_x', 'Cartn_y', 'Cartn_z',
-             'occupancy', 'B_iso_or_equiv', 'label_entity_id', 'id']) as lp:
+             'occupancy', 'B_iso_or_equiv', 'label_entity_id',
+             'pdbx_PDB_model_num', 'id']) as lp:
             for a in atoms:
                 # Detect new residue if PDB resnum changed
                 pdb_this_resnum = a[22:26]
@@ -547,6 +548,7 @@ class CifWriter:
                          auth_asym_id=chain_id, label_alt_id=None, Cartn_x=x,
                          Cartn_y=y, Cartn_z=z, occupancy=occ,
                          B_iso_or_equiv=tfac, label_entity_id=entity_id,
+                         pdbx_PDB_model_num=1,
                          id=next(ordinal))
         assert auth_seqid == resnum_end
 
