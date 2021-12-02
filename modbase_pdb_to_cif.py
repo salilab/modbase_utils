@@ -31,7 +31,6 @@ three_to_one = {
 }
 
 one_to_three = {val: key for key, val in three_to_one.items()}
-one_to_three['UNK'] = 'UNK'
 
 
 def split_resnum(resnum):
@@ -237,7 +236,9 @@ class CifWriter:
                 p = self.align.template.primary
                 for i, s in enumerate(p):
                     lp.write(entity_id=self.template.entity_id, num=i+1,
-                             mon_id=one_to_three[s], hetero=None)
+                             # non-standard residues already use the full name
+                             mon_id=s if len(s) > 1 else one_to_three[s],
+                             hetero=None)
             for i, s in enumerate(sequence3):
                 lp.write(entity_id=self.target.entity_id, num=i+1,
                          mon_id=s, hetero=None)
