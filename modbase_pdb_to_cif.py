@@ -12,7 +12,8 @@ import ihm.format_bcif
 
 # Single sequence in a Modeller alignment
 Sequence = collections.namedtuple(
-    "Sequence", ["seqtyp", "chain", "method", "gapped", "primary"])
+    "Sequence", ["seqtyp", "chain", "method", "gapped", "primary",
+                 "primary_can", "primary_print"])
 
 
 # Reference sequence database
@@ -30,6 +31,7 @@ three_to_one = {
 }
 
 one_to_three = {val: key for key, val in three_to_one.items()}
+one_to_three['UNK'] = 'UNK'
 
 
 def split_resnum(resnum):
@@ -71,9 +73,20 @@ class Alignment:
             if seqlines[-1].endswith('*'):
                 break
         gapped = "".join(seqlines)[:-1]
+        # "Canonical" primary sequence is always a sequence of one-letter
+        # codes; regular primary sequence is 1-letter for standard amino
+        # acids, but can be longer for any non-standard residues (currently
+        # only UNK is handled here, assuming X always means UNK in the
+        # template).
+        primary_can = gapped.replace('-', '')
+        primary = ['UNK' if x == 'X' else x for x in primary_can]
+        # Primary sequence suitable for printing, e.g. "ACG(UNK)"
+        primary_print = "".join('(%s)' % x if len(x) > 1 else x
+                                for x in primary)
         return Sequence(
             seqtyp=header[0], chain=header[3], method=header[7],
-            gapped=gapped, primary=gapped.replace('-', ''))
+            gapped=gapped, primary=primary, primary_can=primary_can,
+            primary_print=primary_print)
 
 
 class CifWriter:
@@ -201,16 +214,17 @@ class CifWriter:
                  "pdbx_seq_one_letter_code",
                  "pdbx_seq_one_letter_code_can"]) as lp:
             if self.align:
-                if self.align.target.primary != target_primary:
+                if self.align.target.primary_can != target_primary:
                     raise ValueError(
                         "Model sequence does not match target "
-                        "sequence in alignment:",
-                        target_primary, self.align.target.primary)
-                p = self.align.template.primary
+                        "canonical sequence in alignment:",
+                        target_primary, self.align.target.primary_can)
+                p = self.align.template.primary_print
+                p_can = self.align.template.primary_can
                 lp.write(entity_id=self.template.entity_id,
                          type="polypeptide(L)", nstd_linkage="no",
                          pdbx_seq_one_letter_code=p,
-                         pdbx_seq_one_letter_code_can=p)
+                         pdbx_seq_one_letter_code_can=p_can)
             lp.write(entity_id=self.target.entity_id,
                      type="polypeptide(L)", nstd_linkage="no",
                      pdbx_seq_one_letter_code=target_primary,
@@ -269,9 +283,10 @@ class CifWriter:
                 "_ma_template_poly",
                 ["template_id", "seq_one_letter_code",
                  "seq_one_letter_code_can"]) as lp:
-            p = self.align.template.primary
+            p = self.align.template.primary_print
+            p_can = self.align.template.primary_can
             lp.write(template_id=1, seq_one_letter_code=p,
-                     seq_one_letter_code_can=p)
+                     seq_one_letter_code_can=p_can)
 
         if self.align:
             # template_id makes no sense if we have no alignment
