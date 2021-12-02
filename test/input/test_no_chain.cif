@@ -64,26 +64,7 @@ _chem_comp.type
 _chem_comp.name
 _chem_comp.formula
 _chem_comp.formula_weight
-ALA 'L-peptide linking' ALANINE 'C3 H7 N O2' 89.094
-ARG 'L-peptide linking' ARGININE 'C6 H15 N4 O2 1' 175.212
-ASN 'L-peptide linking' ASPARAGINE 'C4 H8 N2 O3' 132.119
-ASP 'L-peptide linking' 'ASPARTIC ACID' 'C4 H7 N O4' 133.103
-CYS 'L-peptide linking' CYSTEINE 'C3 H7 N O2 S' 121.154
-GLN 'L-peptide linking' GLUTAMINE 'C5 H10 N2 O3' 146.146
 GLU 'L-peptide linking' 'GLUTAMIC ACID' 'C5 H9 N O4' 147.130
-GLY 'peptide linking' GLYCINE 'C2 H5 N O2' 75.067
-HIS 'L-peptide linking' HISTIDINE 'C6 H10 N3 O2 1' 156.165
-ILE 'L-peptide linking' ISOLEUCINE 'C6 H13 N O2' 131.175
-LEU 'L-peptide linking' LEUCINE 'C6 H13 N O2' 131.175
-LYS 'L-peptide linking' LYSINE 'C6 H15 N2 O2 1' 147.198
-MET 'L-peptide linking' METHIONINE 'C5 H11 N O2 S' 149.208
-PHE 'L-peptide linking' PHENYLALANINE 'C9 H11 N O2' 165.192
-PRO 'L-peptide linking' PROLINE 'C5 H9 N O2' 115.132
-SER 'L-peptide linking' SERINE 'C3 H7 N O3' 105.093
-THR 'L-peptide linking' THREONINE 'C4 H9 N O3' 119.120
-TRP 'L-peptide linking' TRYPTOPHAN 'C11 H12 N2 O2' 204.229
-TYR 'L-peptide linking' TYROSINE 'C9 H11 N O3' 181.191
-VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148
 #
 #
 loop_

@@ -3,6 +3,7 @@
 import re
 import os
 import collections
+import operator
 import gzip
 import itertools
 import ihm.reader
@@ -167,14 +168,17 @@ class CifWriter:
             for i in range(1, 3):
                 lp.write(ordinal_id=i, group_id=i, software_id=i)
 
-    def write_chem_comp(self):
-        # Just assume all 20 standard amino acids are in the model
+    def write_chem_comp(self, sequence3):
+        seen_one_letter = set(three_to_one[x] for x in sequence3)
+        if self.align:
+            seen_one_letter.update(self.align.template.primary)
+        al = ihm.LPeptideAlphabet()
+        comps = [al[code] for code in seen_one_letter]
+
         with self.loop(
                 "_chem_comp",
                 ["id", "type", "name", "formula", "formula_weight"]) as lp:
-            al = ihm.LPeptideAlphabet()
-            for code in "ARNDCQEGHILKMFPSTWYV":
-                cc = al[code]
+            for cc in sorted(comps, key=operator.attrgetter('id')):
                 lp.write(id=cc.id, type=cc.type, name=cc.name,
                          formula=cc.formula, formula_weight=cc.formula_weight)
 
@@ -685,7 +689,7 @@ class Structure:
         c.write_audit_author()
         c.write_citation()
         c.write_software(self.modpipe_version, modeller_version)
-        c.write_chem_comp()
+        c.write_chem_comp(sequence3)
         c.write_entity_details(sequence3)
         template_pdb = self.remarks['TEMPLATE PDB']
         tmpbeg, tmpend, tmpasym = self.get_mmcif_template_info(
