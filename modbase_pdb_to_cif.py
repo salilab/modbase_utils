@@ -333,12 +333,12 @@ class CifWriter:
         # table is pretty simple:
         with self.loop(
                 "_ma_alignment_info",
-                ["alignment_id", "data_id", "software_id",
+                ["alignment_id", "data_id", "software_group_id",
                  "alignment_length", "alignment_type",
                  "alignment_mode"]) as lp:
-            # ModPipe is software_id=1
+            # ModPipe is software_group_id=1
             lp.write(alignment_id=1, data_id=self.alignment.data_id,
-                     software_id=1,
+                     software_group_id=1,
                      alignment_length=len(self.align.template.gapped),
                      alignment_type="target-template pairwise alignment",
                      alignment_mode="global")
@@ -439,13 +439,13 @@ class CifWriter:
         with self.loop(
                 '_ma_qa_metric',
                 ['id', 'name', 'description', 'type', 'mode',
-                 'other_details', 'software_group_id']) as lp:
+                 'type_other_details', 'software_group_id']) as lp:
             # ModPipe is software_id=1
             lp.write(id=next(ordinal), name='MPQS',
                      description='ModPipe Quality Score',
                      type="other", mode="global",
-                     other_details="composite score, values >1.1 are "
-                                   "considered reliable",
+                     type_other_details="composite score, values >1.1 are "
+                                        "considered reliable",
                      software_group_id=1)
 
             # MODELLER is software_id=2

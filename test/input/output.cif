@@ -633,7 +633,7 @@ _ma_qa_metric.name
 _ma_qa_metric.description
 _ma_qa_metric.type
 _ma_qa_metric.mode
-_ma_qa_metric.other_details
+_ma_qa_metric.type_other_details
 _ma_qa_metric.software_group_id
 1 MPQS 'ModPipe Quality Score' other global
 'composite score, values >1.1 are considered reliable' 1
