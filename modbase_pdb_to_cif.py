@@ -2,6 +2,7 @@
 
 import re
 import os
+import sys
 import collections
 import operator
 import gzip
@@ -761,8 +762,11 @@ ModBase).
     args = a.parse_args()
 
     r = Repository(args.repo)
-    with open(args.pdb) as fh:
-        s = read_pdb(fh, r)
+    if args.pdb == '-':
+        s = read_pdb(sys.stdin, r)
+    else:
+        with open(args.pdb) as fh:
+            s = read_pdb(fh, r)
     if args.mmcif.endswith('.bcif'):
         mode, writer = "wb", ihm.format_bcif.BinaryCifWriter
     else:
