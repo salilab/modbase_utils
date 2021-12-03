@@ -583,9 +583,9 @@ class _PolySeqSchemeHandler(ihm.reader.Handler):
     def __init__(self, m):
         self.m = m
 
-    def __call__(self, asym_id, seq_id, auth_seq_num, pdb_ins_code,
+    def __call__(self, asym_id, seq_id, pdb_seq_num, pdb_ins_code,
                  pdb_strand_id):
-        mk = (pdb_strand_id, auth_seq_num, pdb_ins_code)
+        mk = (pdb_strand_id, pdb_seq_num, pdb_ins_code)
         if mk in self.m:
             self.m[mk] = (asym_id, seq_id)
 
