@@ -28,7 +28,8 @@ three_to_one = {
         'PHE': 'F', 'GLY': 'G', 'HIS': 'H', 'ILE': 'I',
         'LYS': 'K', 'LEU': 'L', 'MET': 'M', 'ASN': 'N',
         'PRO': 'P', 'GLN': 'Q', 'ARG': 'R', 'SER': 'S',
-        'THR': 'T', 'VAL': 'V', 'TRP': 'W', 'TYR': 'Y'
+        'THR': 'T', 'VAL': 'V', 'TRP': 'W', 'TYR': 'Y',
+        'GLX': 'Z', 'ASX': 'B'
 }
 
 one_to_three = {val: key for key, val in three_to_one.items()}
@@ -186,6 +187,16 @@ class CifWriter:
         if self.align:
             seen_one_letter.update(self.align.template.primary)
         al = ihm.LPeptideAlphabet()
+        # Monkey-patch older python-ihm to add support for ASX/GLX
+        if 'B' not in al._comps:
+            # element mass cannot be zero so use a very small value instead
+            ihm.ChemComp._element_mass['X'] = 1e-9
+            al._comps['B'] = ihm.LPeptideChemComp(
+                id='ASX', code='B', code_canonical='B',
+                name='ASP/ASN AMBIGUOUS', formula='C4 H6 N O2 X2')
+            al._comps['Z'] = ihm.LPeptideChemComp(
+                id='GLX', code='Z', code_canonical='Z',
+                name='GLU/GLN AMBIGUOUS', formula='C5 H8 N O2 X2')
         comps = [al[code] for code in seen_one_letter]
 
         with self.loop(
