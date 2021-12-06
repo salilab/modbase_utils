@@ -782,5 +782,8 @@ ModBase).
         mode, writer = "wb", ihm.format_bcif.BinaryCifWriter
     else:
         mode, writer = "w", ihm.format.CifWriter
-    with open(args.mmcif, mode) as fh:
-        s.write_mmcif(writer(fh), args.align)
+    if args.mmcif == '-':
+        s.write_mmcif(writer(sys.stdout), args.align)
+    else:
+        with open(args.mmcif, mode) as fh:
+            s.write_mmcif(writer(fh), args.align)
