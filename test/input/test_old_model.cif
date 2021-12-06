@@ -1,0 +1,309 @@
+data_model_9abae378d2aa2c1a5b21c65c98564dc0
+_entry.id modbase_model_9abae378d2aa2c1a5b21c65c98564dc0
+_struct.entry_id modbase_model_9abae378d2aa2c1a5b21c65c98564dc0
+_struct.title 'Model of'
+#
+loop_
+_audit_author.name
+_audit_author.pdbx_ordinal
+'Pieper U' 1
+'Webb B' 2
+'Narayanan E' 3
+'Sali A' 4
+#
+#
+loop_
+_citation.id
+_citation.title
+_citation.journal_abbrev
+_citation.journal_volume
+_citation.page_first
+_citation.page_last
+_citation.year
+_citation.pdbx_database_id_PubMed
+_citation.pdbx_database_id_DOI
+1 'Comparative Protein Modelling by Satisfaction of Spatial Restraints'
+'J Mol Biol' 234 779 815 1993 8254673 10.1006/jmbi.1993.1626
+#
+#
+loop_
+_citation_author.citation_id
+_citation_author.name
+_citation_author.ordinal
+1 'Sali A' 1
+1 'Blundell T L' 2
+#
+#
+loop_
+_software.pdbx_ordinal
+_software.name
+_software.classification
+_software.version
+_software.type
+_software.location
+_software.citation_id
+1 ModPipe 'comparative modeling' . program https://salilab.org/modpipe/ .
+2 MODELLER 'comparative modeling' CVS program https://salilab.org/modeller/ 1
+#
+#
+loop_
+_ma_software_group.ordinal_id
+_ma_software_group.group_id
+_ma_software_group.software_id
+1 1 1
+2 2 2
+#
+#
+loop_
+_chem_comp.id
+_chem_comp.type
+_chem_comp.name
+_chem_comp.formula
+_chem_comp.formula_weight
+ILE 'L-peptide linking' ISOLEUCINE 'C6 H13 N O2' 131.175
+#
+#
+loop_
+_entity.id
+_entity.type
+_entity.src_method
+_entity.pdbx_description
+1 polymer man template
+2 polymer man target
+#
+#
+loop_
+_entity_poly.entity_id
+_entity_poly.type
+_entity_poly.nstd_linkage
+_entity_poly.pdbx_seq_one_letter_code
+_entity_poly.pdbx_seq_one_letter_code_can
+1 polypeptide(L) no I I
+2 polypeptide(L) no I I
+#
+#
+loop_
+_entity_poly_seq.entity_id
+_entity_poly_seq.num
+_entity_poly_seq.mon_id
+_entity_poly_seq.hetero
+1 1 ILE .
+2 1 ILE .
+#
+#
+loop_
+_ma_template_trans_matrix.id
+_ma_template_trans_matrix.rot_matrix[1][1]
+_ma_template_trans_matrix.rot_matrix[2][1]
+_ma_template_trans_matrix.rot_matrix[3][1]
+_ma_template_trans_matrix.rot_matrix[1][2]
+_ma_template_trans_matrix.rot_matrix[2][2]
+_ma_template_trans_matrix.rot_matrix[3][2]
+_ma_template_trans_matrix.rot_matrix[1][3]
+_ma_template_trans_matrix.rot_matrix[2][3]
+_ma_template_trans_matrix.rot_matrix[3][3]
+_ma_template_trans_matrix.tr_vector[1]
+_ma_template_trans_matrix.tr_vector[2]
+_ma_template_trans_matrix.tr_vector[3]
+1 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0
+#
+#
+loop_
+_ma_template_details.ordinal_id
+_ma_template_details.template_id
+_ma_template_details.template_origin
+_ma_template_details.template_entity_type
+_ma_template_details.template_trans_matrix_id
+_ma_template_details.template_data_id
+_ma_template_details.target_asym_id
+_ma_template_details.template_label_asym_id
+_ma_template_details.template_label_entity_id
+_ma_template_details.template_model_num
+1 1 'reference database' polymer 1 1 A A 1 1
+#
+#
+loop_
+_ma_template_poly.template_id
+_ma_template_poly.seq_one_letter_code
+_ma_template_poly.seq_one_letter_code_can
+1 I I
+#
+#
+loop_
+_ma_template_poly_segment.id
+_ma_template_poly_segment.template_id
+_ma_template_poly_segment.residue_number_begin
+_ma_template_poly_segment.residue_number_end
+1 1 1 1
+#
+#
+loop_
+_ma_template_ref_db_details.template_id
+_ma_template_ref_db_details.db_name
+_ma_template_ref_db_details.db_accession_code
+1 PDB 1a7s
+#
+#
+loop_
+_ma_target_entity.entity_id
+_ma_target_entity.data_id
+_ma_target_entity.origin
+2 2 .
+#
+#
+loop_
+_ma_target_entity_instance.asym_id
+_ma_target_entity_instance.entity_id
+_ma_target_entity_instance.details
+A 2 .
+#
+#
+loop_
+_ma_target_template_poly_mapping.id
+_ma_target_template_poly_mapping.template_segment_id
+_ma_target_template_poly_mapping.target_asym_id
+_ma_target_template_poly_mapping.target_seq_id_begin
+_ma_target_template_poly_mapping.target_seq_id_end
+1 1 A 1 1
+#
+#
+loop_
+_ma_alignment_info.alignment_id
+_ma_alignment_info.data_id
+_ma_alignment_info.software_group_id
+_ma_alignment_info.alignment_length
+_ma_alignment_info.alignment_type
+_ma_alignment_info.alignment_mode
+1 3 1 1 'target-template pairwise alignment' global
+#
+#
+loop_
+_ma_alignment_details.ordinal_id
+_ma_alignment_details.alignment_id
+_ma_alignment_details.template_segment_id
+_ma_alignment_details.target_asym_id
+_ma_alignment_details.score_type
+_ma_alignment_details.score_value
+1 1 1 A 'BLAST e-value' 1e-45
+#
+#
+loop_
+_ma_alignment.ordinal_id
+_ma_alignment.alignment_id
+_ma_alignment.target_template_flag
+_ma_alignment.sequence
+1 1 2 I
+2 1 1 I
+#
+#
+loop_
+_ma_struct_assembly.ordinal_id
+_ma_struct_assembly.assembly_id
+_ma_struct_assembly.entity_id
+_ma_struct_assembly.asym_id
+_ma_struct_assembly.seq_id_begin
+_ma_struct_assembly.seq_id_end
+1 1 2 A 1 1
+#
+#
+loop_
+_ma_data.id
+_ma_data.name
+_ma_data.content_type
+1 'Template Structure' 'template structure'
+2 'Target Sequence' target
+3 'Target Template Alignment' 'target-template alignment'
+4 'Target Structure' 'model coordinates'
+#
+#
+loop_
+_ma_data_group.ordinal_id
+_ma_data_group.group_id
+_ma_data_group.data_id
+1 1 1
+2 2 2
+3 3 3
+4 4 4
+#
+#
+loop_
+_ma_protocol_step.ordinal_id
+_ma_protocol_step.protocol_id
+_ma_protocol_step.step_id
+_ma_protocol_step.method_type
+_ma_protocol_step.step_name
+_ma_protocol_step.software_group_id
+_ma_protocol_step.input_data_group_id
+_ma_protocol_step.output_data_group_id
+1 1 1 'template search' 'ModPipe ' 1 1 3
+2 1 2 modeling . 2 3 4
+3 1 3 'model selection' . 1 4 4
+#
+#
+loop_
+_ma_model_list.ordinal_id
+_ma_model_list.model_id
+_ma_model_list.model_group_id
+_ma_model_list.model_name
+_ma_model_list.model_group_name
+_ma_model_list.assembly_id
+_ma_model_list.data_id
+_ma_model_list.model_type
+1 1 1 'Selected model' . 1 4 'Homology model'
+#
+#
+loop_
+_struct_asym.id
+_struct_asym.entity_id
+_struct_asym.details
+A 2 ?
+#
+#
+loop_
+_pdbx_poly_seq_scheme.asym_id
+_pdbx_poly_seq_scheme.entity_id
+_pdbx_poly_seq_scheme.seq_id
+_pdbx_poly_seq_scheme.mon_id
+_pdbx_poly_seq_scheme.pdb_seq_num
+_pdbx_poly_seq_scheme.auth_seq_num
+_pdbx_poly_seq_scheme.pdb_mon_id
+_pdbx_poly_seq_scheme.auth_mon_id
+_pdbx_poly_seq_scheme.pdb_strand_id
+A 2 1 ILE 21 21 ILE ILE A
+#
+#
+loop_
+_atom_site.group_PDB
+_atom_site.type_symbol
+_atom_site.label_atom_id
+_atom_site.label_comp_id
+_atom_site.label_asym_id
+_atom_site.label_seq_id
+_atom_site.auth_seq_id
+_atom_site.pdbx_PDB_ins_code
+_atom_site.auth_asym_id
+_atom_site.label_alt_id
+_atom_site.Cartn_x
+_atom_site.Cartn_y
+_atom_site.Cartn_z
+_atom_site.occupancy
+_atom_site.B_iso_or_equiv
+_atom_site.label_entity_id
+_atom_site.pdbx_PDB_model_num
+_atom_site.id
+ATOM N N ILE A 1 21 ? A . 11.904 27.698 41.406 1.00 90.95 2 1 1
+ATOM C CA ILE A 1 21 ? A . 12.594 27.129 42.583 1.00 90.95 2 1 2
+ATOM C CB ILE A 1 21 ? A . 13.986 26.675 42.240 1.00 90.95 2 1 3
+ATOM C CG2 ILE A 1 21 ? A . 14.748 26.439 43.555 1.00 90.95 2 1 4
+ATOM C CG1 ILE A 1 21 ? A . 13.947 25.437 41.324 1.00 90.95 2 1 5
+ATOM C CD1 ILE A 1 21 ? A . 13.424 25.713 39.918 1.00 90.95 2 1 6
+ATOM C C ILE A 1 21 ? A . 12.630 28.091 43.720 1.00 90.95 2 1 7
+ATOM O O ILE A 1 21 ? A . 12.780 29.300 43.543 1.00 90.95 2 1 8
+#
+#
+loop_
+_atom_type.symbol
+C
+N
+O
+#

@@ -565,6 +565,11 @@ class CifWriter:
                 inscode = a[26:27].strip() or ihm.unknown
                 group_pdb = a[:6].strip()
                 element = a[76:78].strip() or ihm.unknown
+                # Very old PDBs don't have sequence where the element should
+                # be, so ignore that; guess element as the first character
+                # of name
+                if a[73:76] == '1SG':
+                    element = a[13:14].strip() or ihm.unknown
                 elements.add(element)
                 atmnam = a[12:16].strip()
                 resnam = a[17:20].strip()
@@ -672,9 +677,9 @@ class Structure:
 
     def get_modeller_version(self):
         if self.expdta:
-            m = re.search(r'MODELLER\s+(\S+)', self.expdta)
+            m = re.search(r'MODELLER\s+(Version\s+)?(\S+)', self.expdta)
             if m:
-                return m.group(1)
+                return m.group(2)
 
     def get_mmcif_template_info(self, pdb_beg, pdb_end, pdb_chain, pdb_code):
         """Given PDB ("author-provided") template information, map to
@@ -688,6 +693,9 @@ class Structure:
         # Open the mmCIF file and map PDB ranges to mmCIF
         with self.repo.open_mmcif(pdb_code) as fh:
             cif_ranges = list(self.repo.map_ranges(fh, pdb_ranges))
+        # Handle start==end
+        if len(cif_ranges) == 1:
+            cif_ranges = [cif_ranges[0], cif_ranges[0]]
         # asym_id of start and end should be the same
         assert(cif_ranges[0][0] == cif_ranges[1][0])
         return(int(cif_ranges[0][1]), int(cif_ranges[1][1]), cif_ranges[0][0])
@@ -720,9 +728,13 @@ class Structure:
         c.write_chem_comp(sequence3)
         c.write_entity_details(sequence3)
         template_pdb = self.remarks['TEMPLATE PDB']
+        # Some very old models use single-chain PDB templates with no chain ID.
+        # These have all since been remediated, almost certainly to use chain
+        # ID 'A'.
+        template_chain = self.remarks['TEMPLATE CHAIN'] or 'A'
         tmpbeg, tmpend, tmpasym = self.get_mmcif_template_info(
             self.remarks['TEMPLATE BEGIN'], self.remarks['TEMPLATE END'],
-            self.remarks['TEMPLATE CHAIN'], template_pdb)
+            template_chain, template_pdb)
         c.write_template_details(
             chain_id, tmpbeg, tmpend, tmpasym, template_pdb)
         tgtbeg = int(self.remarks['TARGET BEGIN'])

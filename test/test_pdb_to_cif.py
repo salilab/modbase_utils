@@ -61,6 +61,17 @@ class Tests(unittest.TestCase):
         self.compare_files(out, outcif)
         os.unlink(out)
 
+    def test_old_model(self):
+        """Test modbase_pdb_to_cif script with old-style models"""
+        out = 'test_old_model.cif'
+        inpdb = os.path.join(INPUTDIR, 'test_old_model.pdb')
+        align = os.path.join(INPUTDIR, 'test_old_model.ali')
+        outcif = os.path.join(INPUTDIR, 'test_old_model.cif')
+        _ = subprocess.check_call([sys.executable, script, '-r', repo,
+                                   '-a', align, inpdb, out])
+        self.compare_files(out, outcif)
+        os.unlink(out)
+
 
 if __name__ == '__main__':
     unittest.main()
