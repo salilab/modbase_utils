@@ -45,8 +45,8 @@ _software.version
 _software.type
 _software.location
 _software.citation_id
-1 ModPipe 'comparative modeling' SVN.r1693 program https://salilab.org/modpipe/
-.
+1 ModPipe 'comparative modeling' SVN.r1693:r1694 program
+https://salilab.org/modpipe/ .
 2 MODELLER 'comparative modeling' SVN program https://salilab.org/modeller/ 1
 #
 #
