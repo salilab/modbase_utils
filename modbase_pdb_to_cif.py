@@ -104,6 +104,10 @@ class CifWriter:
         self.alignment = CifID()
         if align:
             self.template.entity_id, self.target.entity_id = 1, 2
+            # If target and template have same sequence, use one entity
+            # for both
+            if align.template.primary == align.target.primary:
+                self.target.entity_id = self.template.entity_id
         else:
             self.target.entity_id = 1
         self.template.data_id, self.target.data_id = 1, 2
@@ -207,15 +211,20 @@ class CifWriter:
                          formula=cc.formula, formula_weight=cc.formula_weight)
 
     def write_entity_details(self, sequence3):
-        # entities for target (and template if we have alignment)
+        # entities for target (and template if we have alignment that is
+        # not 100% identical)
         with self.loop(
                 "_entity",
                 ["id", "type", "src_method", "pdbx_description"]) as lp:
+            desc = "target"
             if self.align:
-                lp.write(id=self.template.entity_id, type="polymer",
-                         src_method="man", pdbx_description="template")
+                if self.template.entity_id != self.target.entity_id:
+                    lp.write(id=self.template.entity_id, type="polymer",
+                             src_method="man", pdbx_description="template")
+                else:
+                    desc = "target and template"
             lp.write(id=self.target.entity_id, type="polymer",
-                     src_method="man", pdbx_description="target")
+                     src_method="man", pdbx_description=desc)
 
         target_primary = "".join(three_to_one[x] for x in sequence3)
 
@@ -230,12 +239,14 @@ class CifWriter:
                         "Model sequence does not match target "
                         "canonical sequence in alignment:",
                         target_primary, self.align.target.primary_can)
-                p = self.align.template.primary_print
-                p_can = self.align.template.primary_can
-                lp.write(entity_id=self.template.entity_id,
-                         type="polypeptide(L)", nstd_linkage="no",
-                         pdbx_seq_one_letter_code=p,
-                         pdbx_seq_one_letter_code_can=p_can)
+                if (self.align
+                        and self.template.entity_id != self.target.entity_id):
+                    p = self.align.template.primary_print
+                    p_can = self.align.template.primary_can
+                    lp.write(entity_id=self.template.entity_id,
+                             type="polypeptide(L)", nstd_linkage="no",
+                             pdbx_seq_one_letter_code=p,
+                             pdbx_seq_one_letter_code_can=p_can)
             lp.write(entity_id=self.target.entity_id,
                      type="polypeptide(L)", nstd_linkage="no",
                      pdbx_seq_one_letter_code=target_primary,
@@ -244,7 +255,7 @@ class CifWriter:
         with self.loop(
                 "_entity_poly_seq",
                 ["entity_id", "num", "mon_id", "hetero"]) as lp:
-            if self.align:
+            if self.align and self.template.entity_id != self.target.entity_id:
                 p = self.align.template.primary
                 for i, s in enumerate(p):
                     lp.write(entity_id=self.template.entity_id, num=i+1,
