@@ -369,7 +369,7 @@ class CifWriter:
                              seq_db_align_begin=tgtbeg,
                              seq_db_align_end=tgtend)
 
-    def write_alignment(self, chain_id, evalue):
+    def write_alignment(self, chain_id, identity, evalue):
         if not self.align:
             return
         # Just one target-template alignment (one template, one chain) so this
@@ -386,13 +386,17 @@ class CifWriter:
                      alignment_type="target-template pairwise alignment",
                      alignment_mode="global")
 
+        denom = "Length of the shorter sequence"
         with self.loop(
                 "_ma_alignment_details",
                 ["ordinal_id", "alignment_id", "template_segment_id",
-                 "target_asym_id", "score_type", "score_value"]) as lp:
+                 "target_asym_id", "score_type", "score_value",
+                 "percent_sequence_identity",
+                 "sequence_identity_denominator"]) as lp:
             lp.write(ordinal_id=1, alignment_id=1, template_segment_id=1,
                      target_asym_id=chain_id, score_type='BLAST e-value',
-                     score_value=evalue)
+                     score_value=evalue, percent_sequence_identity=identity,
+                     sequence_identity_denominator=denom)
 
         with self.loop(
                 "_ma_alignment",
@@ -751,7 +755,8 @@ class Structure:
         tgtbeg = int(self.remarks['TARGET BEGIN'])
         tgtend = int(self.remarks['TARGET END'])
         c.write_target_details(chain_id, sequence3, self.seqdb, tgtbeg, tgtend)
-        c.write_alignment(chain_id, self.remarks['EVALUE'])
+        c.write_alignment(chain_id, self.remarks['SEQUENCE IDENTITY'],
+                          self.remarks['EVALUE'])
         c.write_assembly(chain_id, sequence3)
         c.write_data()
         c.write_protocol()

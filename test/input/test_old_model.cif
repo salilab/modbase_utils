@@ -181,7 +181,9 @@ _ma_alignment_details.template_segment_id
 _ma_alignment_details.target_asym_id
 _ma_alignment_details.score_type
 _ma_alignment_details.score_value
-1 1 1 A 'BLAST e-value' 1e-45
+_ma_alignment_details.percent_sequence_identity
+_ma_alignment_details.sequence_identity_denominator
+1 1 1 A 'BLAST e-value' 1e-45 33 'Length of the shorter sequence'
 #
 #
 loop_
