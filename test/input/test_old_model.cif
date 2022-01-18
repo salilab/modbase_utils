@@ -2,6 +2,8 @@ data_model_9abae378d2aa2c1a5b21c65c98564dc0
 _entry.id modbase_model_9abae378d2aa2c1a5b21c65c98564dc0
 _struct.entry_id modbase_model_9abae378d2aa2c1a5b21c65c98564dc0
 _struct.title 'Model of'
+_database_2.database_code 9abae378d2aa2c1a5b21c65c98564dc0
+_database_2.database_id MODBASE
 #
 loop_
 _audit_author.name

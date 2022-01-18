@@ -2,6 +2,8 @@ data_model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _entry.id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _struct.entry_id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _struct.title 'Model of S54091 hypothetical protein YPR070w - yeast (Saccha'
+_database_2.database_code 66b8fbc891f519c1ba8d8ad2e62c6caa
+_database_2.database_id MODBASE
 _exptl.details 'MODELLER SVN 2020/07/02 17:44:25'
 _exptl.entry_id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _exptl.method 'THEORETICAL MODEL'

@@ -126,6 +126,8 @@ class CifWriter:
             lp.write(id=entry_id)
         with self.writer.category("_struct") as lp:
             lp.write(entry_id=entry_id, title=title)
+        with self.writer.category("_database_2") as lp:
+            lp.write(database_id="MODBASE", database_code=model_id)
 
     def write_exptl(self, model_id, expdta):
         if expdta.startswith('THEORETICAL MODEL, '):
