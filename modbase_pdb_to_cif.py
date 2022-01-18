@@ -125,7 +125,8 @@ class CifWriter:
         with self.writer.category("_entry") as lp:
             lp.write(id=entry_id)
         with self.writer.category("_struct") as lp:
-            lp.write(entry_id=entry_id, title=title)
+            lp.write(entry_id=entry_id, title=title,
+                     pdbx_structure_determination_methodology="computational")
         with self.writer.category("_database_2") as lp:
             lp.write(database_id="MODBASE", database_code=model_id)
 
