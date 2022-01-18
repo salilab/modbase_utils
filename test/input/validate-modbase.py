@@ -19,6 +19,7 @@ with urllib.request.urlopen(
 
 pdbx_ma = pdbx + ma
 
-for to_validate in ('output.cif', 'output_with_align.cif'):
+for to_validate in ('output.cif', 'output_with_align.cif',
+                    'test_no_chain.cif', 'test_old_model.cif'):
     with open(to_validate) as fh:
         pdbx_ma.validate(fh)
