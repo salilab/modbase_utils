@@ -227,6 +227,17 @@ class Structure:
 
         s = ma.System(title=self.title,
                       id='model_' + self.remarks['MODPIPE MODEL ID'])
+        c = ihm.Citation(
+            title="ModBase, a database of annotated comparative protein "
+                  "structure models and associated resources",
+            journal="Nucleic Acids Res", volume=42,
+            page_range=('D336', 'D346'), year=2014, pmid=24271400,
+            authors=['Pieper U', 'Webb BM', 'Dong GQ', 'Schneidman-Duhovny D',
+                     'Fan H', 'Kim SJ', 'Khuri N', 'Spill YG', 'Weinkam P',
+                     'Hammel M', 'Tainer JA', 'Nilges M', 'Sali A'],
+            doi='10.1093/nar/gkt1144')
+        s.citations.append(c)
+
         s.authors.extend(('Pieper U', 'Webb B', 'Narayanan E', 'Sali A'))
         modpipe_software = ma.Software(
             name='ModPipe', classification='comparative modeling',
