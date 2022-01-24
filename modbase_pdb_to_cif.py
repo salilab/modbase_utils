@@ -18,15 +18,15 @@ from ma.alignment import ShorterSequenceIdentity as SequenceIdentity
 import ma.protocol
 
 class RefSeq(ma.reference.TargetReference):
-    other_details = "RefSeq"
+    """RefSeq"""
 
 
 class PlasmoDB(ma.reference.TargetReference):
-    other_details = "PlasmoDB"
+    """PlasmoDB"""
 
 
 class MPQSMetricType(ma.qa_metric.MetricType):
-    other_details = "composite score, values >1.1 are considered reliable"
+    """composite score, values >1.1 are considered reliable"""
 
 
 # Single sequence in a Modeller alignment
@@ -244,7 +244,6 @@ class Structure:
             location='https://salilab.org/modpipe/', type='program',
             version=self.modpipe_version,
             description='Comparative modeling pipeline')
-        s.software.append(modpipe_software)
         modeller_software = ma.Software(
             name='MODELLER', classification='comparative modeling',
             location='https://salilab.org/modeller/', type='program',
@@ -252,14 +251,12 @@ class Structure:
             citation=ihm.citations.modeller,
             description='Comparative modeling by satisfaction of '
                         'spatial restraints')
-        s.software.append(modeller_software)
 
         tgtbeg = int(self.remarks['TARGET BEGIN'])
         tgtend = int(self.remarks['TARGET END'])
         if align:
             template_e = ma.Entity(align.template.primary,
                                    description="Template")
-            s.entities.append(template_e)
             template_pdb = self.remarks['TEMPLATE PDB']
             # Some very old models use single-chain PDB templates with no
             # chain ID. These have all since been remediated, almost certainly
@@ -276,17 +273,15 @@ class Structure:
             target_e = template_e 
         else:
             target_e = ma.Entity(tgt_primary, description="Target")
-            s.entities.append(target_e)
         target_e.references.extend(self.get_target_refs(tgtbeg, tgtend))
         chain_id = self.chain_id.strip() or 'A'
         asym = ma.AsymUnit(target_e, details='Model subunit', id=chain_id,
                            auth_seq_id_map=tgtbeg-1)
-        s.asym_units.append(asym)
         asmb = ma.Assembly((asym,), name='Modeled assembly')
 
+        class OurAlignment(ma.alignment.Global, ma.alignment.Pairwise):
+            pass
         if align:
-            class OurAlignment(ma.alignment.Global, ma.alignment.Pairwise):
-                pass
             p = ma.alignment.Pair(
                 template=template.segment(align.template.gapped,
                                           tmpbeg, tmpend),
@@ -295,7 +290,10 @@ class Structure:
                 identity=SequenceIdentity(self.remarks['SEQUENCE IDENTITY']))
             aln = OurAlignment(name="Modeling alignment",
                                software=modpipe_software, pairs=[p])
-            s.alignments.append(aln)
+        else:
+            aln = OurAlignment(name="Modeling alignment",
+                               software=modpipe_software, pairs=[])
+        s.alignments.append(aln)
 
         model = self.get_model_class(asym, self.atoms)(
                 assembly=asmb, name='Best scoring model')
@@ -329,7 +327,7 @@ class Structure:
                           align_begin=tgtbeg, align_end=tgtend)
 
     def get_model_class(self, asym, atoms):
-        class MyModel(ma.model.Model):
+        class MyModel(ma.model.HomologyModel):
             def get_atoms(self):
                 pdb_resnum = None
                 seqid = 1
@@ -366,13 +364,11 @@ class Structure:
         if not mpqs:
             return
         class MPQS(ma.qa_metric.Global, MPQSMetricType):
-            name = "MPQS"
-            description = "ModPipe Quality Score"
+            """ModPipe Quality Score"""
             software = modpipe_software
 
         class zDOPE(ma.qa_metric.Global, ma.qa_metric.ZScore):
-            name = "zDOPE"
-            description = "Normalized DOPE"
+            """Normalized DOPE"""
             software = modeller_software
 
         yield MPQS(mpqs)
@@ -380,14 +376,14 @@ class Structure:
 
         if tsvmod_rmsd:
             class TSVModRMSD(ma.qa_metric.Global, ma.qa_metric.Distance):
+                __doc__ = "TSVMod predicted RMSD (%s)" % tsvmod_method
                 name = "TSVMod RMSD"
-                description = "TSVMod predicted RMSD (%s)" % tsvmod_method
                 software = None
 
             class TSVModNO35(ma.qa_metric.Global, ma.qa_metric.NormalizedScore):
+                __doc__ = ("TSVMod predicted native overlap (%s)"
+                           % tsvmod_method)
                 name = "TSVMod NO35"
-                description = ("TSVMod predicted native overlap (%s)"
-                               % tsvmod_method)
                 software = None
 
             yield TSVModRMSD(tsvmod_rmsd)
