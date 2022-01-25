@@ -225,8 +225,9 @@ class Structure:
             align = Alignment(align)
         tgt_primary = "".join(three_to_one[x] for x in self.get_sequence3())
 
-        s = ma.System(title=self.title,
-                      id='model_' + self.remarks['MODPIPE MODEL ID'])
+        model_id = self.remarks['MODPIPE MODEL ID']
+        s = ma.System(title=self.title, id='model_' + model_id,
+                      database=ma.Database(id='MODBASE', code=model_id))
         c = ihm.Citation(
             title="ModBase, a database of annotated comparative protein "
                   "structure models and associated resources",
