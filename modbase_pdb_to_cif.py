@@ -298,6 +298,9 @@ class Structure:
             aln = OurAlignment(name="Modeling alignment",
                                software=modpipe_software, pairs=[])
         s.alignments.append(aln)
+        modeling_input = modelcif.data.DataGroup((aln, target_e))
+        if align:
+            modeling_input.append(template)
 
         model = self.get_model_class(asym, self.atoms)(
                 assembly=asmb, name='Best scoring model')
@@ -311,9 +314,10 @@ class Structure:
         mth = " %s" % align.template.method if align else ''
         protocol.steps.append(modelcif.protocol.TemplateSearchStep(
             name='ModPipe%s' % mth, software=modpipe_software,
-            input_data=model, output_data=aln))
+            input_data=target_e, output_data=aln))
         protocol.steps.append(modelcif.protocol.ModelingStep(
-            software=modeller_software, input_data=aln, output_data=model))
+            software=modeller_software, input_data=modeling_input,
+            output_data=model))
         protocol.steps.append(modelcif.protocol.ModelSelectionStep(
             software=modpipe_software, input_data=model, output_data=model))
         s.protocols.append(protocol)
