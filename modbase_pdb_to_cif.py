@@ -282,7 +282,8 @@ class Structure:
                                  id=chain_id, auth_seq_id_map=tgtbeg-1)
         asmb = modelcif.Assembly((asym,), name='Modeled assembly')
 
-        class OurAlignment(modelcif.alignment.Global, modelcif.alignment.Pairwise):
+        class OurAlignment(modelcif.alignment.Global,
+                           modelcif.alignment.Pairwise):
             pass
         if align:
             p = modelcif.alignment.Pair(
