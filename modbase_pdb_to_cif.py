@@ -9,23 +9,23 @@ import gzip
 import itertools
 import ihm.reader
 import ihm.citations
-import ma
-import ma.dumper
-import ma.model
-import ma.alignment
-import ma.reference
-from ma.alignment import ShorterSequenceIdentity as SequenceIdentity
-import ma.protocol
+import modelcif
+import modelcif.dumper
+import modelcif.model
+import modelcif.alignment
+import modelcif.reference
+from modelcif.alignment import ShorterSequenceIdentity as SequenceIdentity
+import modelcif.protocol
 
-class RefSeq(ma.reference.TargetReference):
+class RefSeq(modelcif.reference.TargetReference):
     """RefSeq"""
 
 
-class PlasmoDB(ma.reference.TargetReference):
+class PlasmoDB(modelcif.reference.TargetReference):
     """PlasmoDB"""
 
 
-class MPQSMetricType(ma.qa_metric.MetricType):
+class MPQSMetricType(modelcif.qa_metric.MetricType):
     """composite score, values >1.1 are considered reliable"""
 
 
@@ -220,14 +220,15 @@ class Structure:
                 resnum = this_resnum
 
     def get_system(self, align):
-        """Create and return an ma.System object"""
+        """Create and return an modelcif.System object"""
         if align:
             align = Alignment(align)
         tgt_primary = "".join(three_to_one[x] for x in self.get_sequence3())
 
         model_id = self.remarks['MODPIPE MODEL ID']
-        s = ma.System(title=self.title, id='model_' + model_id,
-                      database=ma.Database(id='MODBASE', code=model_id))
+        s = modelcif.System(
+            title=self.title, id='model_' + model_id,
+            database=modelcif.Database(id='MODBASE', code=model_id))
         c = ihm.Citation(
             title="ModBase, a database of annotated comparative protein "
                   "structure models and associated resources",
@@ -240,12 +241,12 @@ class Structure:
         s.citations.append(c)
 
         s.authors.extend(('Pieper U', 'Webb B', 'Narayanan E', 'Sali A'))
-        modpipe_software = ma.Software(
+        modpipe_software = modelcif.Software(
             name='ModPipe', classification='comparative modeling',
             location='https://salilab.org/modpipe/', type='program',
             version=self.modpipe_version,
             description='Comparative modeling pipeline')
-        modeller_software = ma.Software(
+        modeller_software = modelcif.Software(
             name='MODELLER', classification='comparative modeling',
             location='https://salilab.org/modeller/', type='program',
             version=self.get_modeller_version(),
@@ -256,8 +257,8 @@ class Structure:
         tgtbeg = int(self.remarks['TARGET BEGIN'])
         tgtend = int(self.remarks['TARGET END'])
         if align:
-            template_e = ma.Entity(align.template.primary,
-                                   description="Template")
+            template_e = modelcif.Entity(align.template.primary,
+                                         description="Template")
             template_pdb = self.remarks['TEMPLATE PDB']
             # Some very old models use single-chain PDB templates with no
             # chain ID. These have all since been remediated, almost certainly
@@ -266,28 +267,29 @@ class Structure:
             tmpbeg, tmpend, tmpasym = self.get_mmcif_template_info(
                 self.remarks['TEMPLATE BEGIN'], self.remarks['TEMPLATE END'],
                 template_chain, template_pdb)
-            template = ma.Template(entity=template_e, asym_id=tmpasym,
-                                   model_num=1, name="Template structure",
-                                   transformation=ma.Transformation.identity(),
-                                   references=[ma.reference.PDB(template_pdb)])
+            template = modelcif.Template(
+                entity=template_e, asym_id=tmpasym, model_num=1,
+                name="Template structure",
+                transformation=modelcif.Transformation.identity(),
+                references=[modelcif.reference.PDB(template_pdb)])
         if align and align.target.primary == tgt_primary:
             target_e = template_e 
         else:
-            target_e = ma.Entity(tgt_primary, description="Target")
+            target_e = modelcif.Entity(tgt_primary, description="Target")
         target_e.references.extend(self.get_target_refs(tgtbeg, tgtend))
         chain_id = self.chain_id.strip() or 'A'
-        asym = ma.AsymUnit(target_e, details='Model subunit', id=chain_id,
-                           auth_seq_id_map=tgtbeg-1)
-        asmb = ma.Assembly((asym,), name='Modeled assembly')
+        asym = modelcif.AsymUnit(target_e, details='Model subunit',
+                                 id=chain_id, auth_seq_id_map=tgtbeg-1)
+        asmb = modelcif.Assembly((asym,), name='Modeled assembly')
 
-        class OurAlignment(ma.alignment.Global, ma.alignment.Pairwise):
+        class OurAlignment(modelcif.alignment.Global, modelcif.alignment.Pairwise):
             pass
         if align:
-            p = ma.alignment.Pair(
+            p = modelcif.alignment.Pair(
                 template=template.segment(align.template.gapped,
                                           tmpbeg, tmpend),
                 target=asym.segment(align.target.gapped, tgtbeg, tgtend),
-                score=ma.alignment.BLASTEValue(self.remarks['EVALUE']),
+                score=modelcif.alignment.BLASTEValue(self.remarks['EVALUE']),
                 identity=SequenceIdentity(self.remarks['SEQUENCE IDENTITY']))
             aln = OurAlignment(name="Modeling alignment",
                                software=modpipe_software, pairs=[p])
@@ -301,24 +303,24 @@ class Structure:
         model.qa_metrics.extend(self.get_scores(modeller_software,
                                                 modpipe_software))
 
-        model_group = ma.model.ModelGroup([model], name='All models')
+        model_group = modelcif.model.ModelGroup([model], name='All models')
         s.model_groups.append(model_group)
 
-        protocol = ma.protocol.Protocol()
+        protocol = modelcif.protocol.Protocol()
         mth = " %s" % align.template.method if align else ''
-        protocol.steps.append(ma.protocol.TemplateSearchStep(
+        protocol.steps.append(modelcif.protocol.TemplateSearchStep(
             name='ModPipe%s' % mth, software=modpipe_software,
             input_data=model, output_data=aln))
-        protocol.steps.append(ma.protocol.ModelingStep(
+        protocol.steps.append(modelcif.protocol.ModelingStep(
             software=modeller_software, input_data=aln, output_data=model))
-        protocol.steps.append(ma.protocol.ModelSelectionStep(
+        protocol.steps.append(modelcif.protocol.ModelSelectionStep(
             software=modpipe_software, input_data=model, output_data=model))
         s.protocols.append(protocol)
 
         return s
 
     def get_target_refs(self, tgtbeg, tgtend):
-        refmap = {'UniProt': ma.reference.UniProt,
+        refmap = {'UniProt': modelcif.reference.UniProt,
                   'RefSeq': RefSeq,
                   'PlasmoDB': PlasmoDB}
         for db in self.seqdb:
@@ -328,7 +330,7 @@ class Structure:
                           align_begin=tgtbeg, align_end=tgtend)
 
     def get_model_class(self, asym, atoms):
-        class MyModel(ma.model.HomologyModel):
+        class MyModel(modelcif.model.HomologyModel):
             def get_atoms(self):
                 pdb_resnum = None
                 seqid = 1
@@ -344,7 +346,7 @@ class Structure:
                     # of name
                     if a[73:76] == '1SG':
                         element = a[13:14].strip() or ihm.unknown
-                    yield ma.model.Atom(asym_unit=asym, type_symbol=element,
+                    yield modelcif.model.Atom(asym_unit=asym, type_symbol=element,
                                         seq_id=seqid, atom_id=a[12:16].strip(),
                                         x=a[30:38].strip(), y=a[38:46].strip(),
                                         z=a[46:54].strip(),
@@ -364,11 +366,11 @@ class Structure:
                                 self.remarks.get('MODPIPE QUALITY SCORE'))
         if not mpqs:
             return
-        class MPQS(ma.qa_metric.Global, MPQSMetricType):
+        class MPQS(modelcif.qa_metric.Global, MPQSMetricType):
             """ModPipe Quality Score"""
             software = modpipe_software
 
-        class zDOPE(ma.qa_metric.Global, ma.qa_metric.ZScore):
+        class zDOPE(modelcif.qa_metric.Global, modelcif.qa_metric.ZScore):
             """Normalized DOPE"""
             software = modeller_software
 
@@ -376,12 +378,14 @@ class Structure:
         yield zDOPE(zdope)
 
         if tsvmod_rmsd:
-            class TSVModRMSD(ma.qa_metric.Global, ma.qa_metric.Distance):
+            class TSVModRMSD(modelcif.qa_metric.Global,
+                             modelcif.qa_metric.Distance):
                 __doc__ = "TSVMod predicted RMSD (%s)" % tsvmod_method
                 name = "TSVMod RMSD"
                 software = None
 
-            class TSVModNO35(ma.qa_metric.Global, ma.qa_metric.NormalizedScore):
+            class TSVModNO35(modelcif.qa_metric.Global,
+                             modelcif.qa_metric.NormalizedScore):
                 __doc__ = ("TSVMod predicted native overlap (%s)"
                            % tsvmod_method)
                 name = "TSVMod NO35"
@@ -426,11 +430,11 @@ ModBase).
     system = s.get_system(args.align)
 
     if args.mmcif == '-':
-        ma.dumper.write(sys.stdout, [system])
+        modelcif.dumper.write(sys.stdout, [system])
     else:
         if args.mmcif.endswith('.bcif'):
             mode, fmt = "wb", "BCIF"
         else:
             mode, fmt = "w", "mmCIF"
         with open(args.mmcif, mode) as fh:
-            ma.dumper.write(fh, [system], format=fmt)
+            modelcif.dumper.write(fh, [system], format=fmt)
