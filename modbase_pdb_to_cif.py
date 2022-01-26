@@ -223,7 +223,7 @@ class Structure:
         """Create and return an modelcif.System object"""
         if align:
             align = Alignment(align)
-        tgt_primary = "".join(three_to_one[x] for x in self.get_sequence3())
+        tgt_primary = [three_to_one[x] for x in self.get_sequence3()]
 
         model_id = self.remarks['MODPIPE MODEL ID']
         s = modelcif.System(
@@ -272,7 +272,7 @@ class Structure:
                 name="Template structure",
                 transformation=modelcif.Transformation.identity(),
                 references=[modelcif.reference.PDB(template_pdb)])
-        if align and align.target.primary == tgt_primary:
+        if align and align.template.primary == tgt_primary:
             target_e = template_e 
         else:
             target_e = modelcif.Entity(tgt_primary, description="Target")
