@@ -274,6 +274,7 @@ class Structure:
                 references=[modelcif.reference.PDB(template_pdb)])
         if align and align.template.primary == tgt_primary:
             target_e = template_e 
+            target_e.description = "Target and template"
         else:
             target_e = modelcif.Entity(tgt_primary, description="Target")
         target_e.references.extend(self.get_target_refs(tgtbeg, tgtend))
@@ -292,10 +293,10 @@ class Structure:
                 target=asym.segment(align.target.gapped, tgtbeg, tgtend),
                 score=modelcif.alignment.BLASTEValue(self.remarks['EVALUE']),
                 identity=SequenceIdentity(self.remarks['SEQUENCE IDENTITY']))
-            aln = OurAlignment(name="Modeling alignment",
+            aln = OurAlignment(name="Target Template Alignment",
                                software=modpipe_software, pairs=[p])
         else:
-            aln = OurAlignment(name="Modeling alignment",
+            aln = OurAlignment(name="Target Template Alignment",
                                software=modpipe_software, pairs=[])
         s.alignments.append(aln)
         modeling_input = modelcif.data.DataGroup((aln, target_e))
@@ -303,7 +304,7 @@ class Structure:
             modeling_input.append(template)
 
         model = self.get_model_class(asym, self.atoms)(
-                assembly=asmb, name='Best scoring model')
+                assembly=asmb, name='Target Structure')
         model.qa_metrics.extend(self.get_scores(modeller_software,
                                                 modpipe_software))
 
