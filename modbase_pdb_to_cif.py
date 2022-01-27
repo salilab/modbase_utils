@@ -290,7 +290,8 @@ class Structure:
             p = modelcif.alignment.Pair(
                 template=template.segment(align.template.gapped,
                                           tmpbeg, tmpend),
-                target=asym.segment(align.target.gapped, tgtbeg, tgtend),
+                target=asym.segment(align.target.gapped,
+                                    1, len(align.target.primary)),
                 score=modelcif.alignment.BLASTEValue(self.remarks['EVALUE']),
                 identity=SequenceIdentity(self.remarks['SEQUENCE IDENTITY']))
             aln = OurAlignment(name="Target Template Alignment",
