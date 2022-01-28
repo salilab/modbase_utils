@@ -1,22 +1,15 @@
 data_model_66b8fbc891f519c1ba8d8ad2e62c6caa
-_entry.id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
-_struct.entry_id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
+_entry.id model_66b8fbc891f519c1ba8d8ad2e62c6caa
+_struct.entry_id model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of S54091 hypothetical protein YPR070w - yeast (Saccha'
+_exptl.entry_id model_66b8fbc891f519c1ba8d8ad2e62c6caa
+_exptl.method 'THEORETICAL MODEL'
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/8b46f31/mmcif_ma.dic
+_audit_conform.dict_name mmcif_ma.dic
+_audit_conform.dict_version 1.3.3
 _database_2.database_code 66b8fbc891f519c1ba8d8ad2e62c6caa
 _database_2.database_id MODBASE
-_exptl.details 'MODELLER SVN 2020/07/02 17:44:25'
-_exptl.entry_id modbase_model_66b8fbc891f519c1ba8d8ad2e62c6caa
-_exptl.method 'THEORETICAL MODEL'
-#
-loop_
-_audit_author.name
-_audit_author.pdbx_ordinal
-'Pieper U' 1
-'Webb B' 2
-'Narayanan E' 3
-'Sali A' 4
-#
 #
 loop_
 _citation.id
@@ -28,7 +21,10 @@ _citation.page_last
 _citation.year
 _citation.pdbx_database_id_PubMed
 _citation.pdbx_database_id_DOI
-1 'Comparative Protein Modelling by Satisfaction of Spatial Restraints'
+1
+'ModBase, a database of annotated comparative protein structure models and associated resources'
+'Nucleic Acids Res' 42 D336 D346 2014 24271400 10.1093/nar/gkt1144
+2 'Comparative protein modelling by satisfaction of spatial restraints.'
 'J Mol Biol' 234 779 815 1993 8254673 10.1006/jmbi.1993.1626
 #
 #
@@ -36,29 +32,55 @@ loop_
 _citation_author.citation_id
 _citation_author.name
 _citation_author.ordinal
-1 'Sali A' 1
-1 'Blundell T L' 2
+1 'Pieper U' 1
+1 'Webb BM' 2
+1 'Dong GQ' 3
+1 'Schneidman-Duhovny D' 4
+1 'Fan H' 5
+1 'Kim SJ' 6
+1 'Khuri N' 7
+1 'Spill YG' 8
+1 'Weinkam P' 9
+1 'Hammel M' 10
+1 'Tainer JA' 11
+1 'Nilges M' 12
+1 'Sali A' 13
+2 'Sali A' 14
+2 'Blundell TL' 15
 #
 #
 loop_
 _software.pdbx_ordinal
 _software.name
 _software.classification
+_software.description
 _software.version
 _software.type
 _software.location
 _software.citation_id
-1 ModPipe 'comparative modeling' SVN.r1693:r1694 program
-https://salilab.org/modpipe/ .
-2 MODELLER 'comparative modeling' SVN program https://salilab.org/modeller/ 1
+1 ModPipe 'comparative modeling' 'Comparative modeling pipeline' SVN.r1693:r1694
+program https://salilab.org/modpipe/ .
+2 MODELLER 'comparative modeling'
+'Comparative modeling by satisfaction of spatial restraints' SVN program
+https://salilab.org/modeller/ 2
 #
 #
 loop_
 _ma_software_group.ordinal_id
 _ma_software_group.group_id
 _ma_software_group.software_id
-1 1 1
-2 2 2
+_ma_software_group.parameter_group_id
+1 1 1 .
+2 2 2 .
+#
+#
+loop_
+_audit_author.name
+_audit_author.pdbx_ordinal
+'Pieper U' 1
+'Webb B' 2
+'Narayanan E' 3
+'Sali A' 4
 #
 #
 loop_
@@ -75,38 +97,10 @@ _entity.id
 _entity.type
 _entity.src_method
 _entity.pdbx_description
-1 polymer man target
-#
-#
-loop_
-_entity_poly.entity_id
-_entity_poly.type
-_entity_poly.nstd_linkage
-_entity_poly.pdbx_seq_one_letter_code
-_entity_poly.pdbx_seq_one_letter_code_can
-1 polypeptide(L) no E E
-#
-#
-loop_
-_entity_poly_seq.entity_id
-_entity_poly_seq.num
-_entity_poly_seq.mon_id
-_entity_poly_seq.hetero
-1 1 GLU .
-#
-#
-loop_
-_ma_target_entity.entity_id
-_ma_target_entity.data_id
-_ma_target_entity.origin
-1 2 .
-#
-#
-loop_
-_ma_target_entity_instance.asym_id
-_ma_target_entity_instance.entity_id
-_ma_target_entity_instance.details
-A 1 .
+_entity.formula_weight
+_entity.pdbx_number_of_molecules
+_entity.details
+1 polymer man Target 147.130 1 .
 #
 #
 loop_
@@ -118,8 +112,85 @@ _ma_target_ref_db_details.db_accession
 _ma_target_ref_db_details.seq_db_isoform
 _ma_target_ref_db_details.seq_db_align_begin
 _ma_target_ref_db_details.seq_db_align_end
-1 UNP . B5VTL7_YEAS6 B5VTL7 ? 9 9
-1 Other RefSeq NP_015395.1 NP_015395 ? 9 9
+_ma_target_ref_db_details.ncbi_taxonomy_id
+_ma_target_ref_db_details.organism_scientific
+1 UNP . B5VTL7_YEAS6 B5VTL7 ? 9 9 . .
+1 Other RefSeq NP_015395.1 NP_015395 ? 9 9 . .
+#
+#
+loop_
+_entity_poly.entity_id
+_entity_poly.type
+_entity_poly.nstd_linkage
+_entity_poly.nstd_monomer
+_entity_poly.pdbx_strand_id
+_entity_poly.pdbx_seq_one_letter_code
+_entity_poly.pdbx_seq_one_letter_code_can
+1 polypeptide(L) no no A E E
+#
+#
+loop_
+_entity_poly_seq.entity_id
+_entity_poly_seq.num
+_entity_poly_seq.mon_id
+_entity_poly_seq.hetero
+1 1 GLU .
+#
+#
+loop_
+_struct_asym.id
+_struct_asym.entity_id
+_struct_asym.details
+A 1 'Model subunit'
+#
+#
+loop_
+_pdbx_poly_seq_scheme.asym_id
+_pdbx_poly_seq_scheme.entity_id
+_pdbx_poly_seq_scheme.seq_id
+_pdbx_poly_seq_scheme.mon_id
+_pdbx_poly_seq_scheme.pdb_seq_num
+_pdbx_poly_seq_scheme.auth_seq_num
+_pdbx_poly_seq_scheme.pdb_mon_id
+_pdbx_poly_seq_scheme.auth_mon_id
+_pdbx_poly_seq_scheme.pdb_strand_id
+_pdbx_poly_seq_scheme.pdb_ins_code
+A 1 1 GLU 9 9 GLU GLU A .
+#
+#
+loop_
+_ma_data.id
+_ma_data.name
+_ma_data.content_type
+_ma_data.content_type_other_details
+1 Target target .
+2 'Target Template Alignment' 'target-template alignment' .
+3 'Target Structure' 'model coordinates' .
+#
+#
+loop_
+_ma_data_group.ordinal_id
+_ma_data_group.group_id
+_ma_data_group.data_id
+1 1 1
+2 2 2
+3 2 1
+4 3 3
+5 4 2
+#
+#
+loop_
+_ma_target_entity.entity_id
+_ma_target_entity.data_id
+_ma_target_entity.origin
+1 1 'reference database'
+#
+#
+loop_
+_ma_target_entity_instance.asym_id
+_ma_target_entity_instance.entity_id
+_ma_target_entity_instance.details
+A 1 'Model subunit'
 #
 #
 loop_
@@ -133,23 +204,20 @@ _ma_struct_assembly.seq_id_end
 #
 #
 loop_
-_ma_data.id
-_ma_data.name
-_ma_data.content_type
-1 'Template Structure' 'template structure'
-2 'Target Sequence' target
-3 'Target Template Alignment' 'target-template alignment'
-4 'Target Structure' 'model coordinates'
+_ma_struct_assembly_details.assembly_id
+_ma_struct_assembly_details.assembly_name
+_ma_struct_assembly_details.assembly_description
+1 'Modeled assembly' .
 #
 #
 loop_
-_ma_data_group.ordinal_id
-_ma_data_group.group_id
-_ma_data_group.data_id
-1 1 1
-2 2 2
-3 3 3
-4 4 4
+_ma_alignment_info.alignment_id
+_ma_alignment_info.data_id
+_ma_alignment_info.software_group_id
+_ma_alignment_info.alignment_length
+_ma_alignment_info.alignment_type
+_ma_alignment_info.alignment_mode
+1 2 1 . 'target-template pairwise alignment' global
 #
 #
 loop_
@@ -158,38 +226,13 @@ _ma_protocol_step.protocol_id
 _ma_protocol_step.step_id
 _ma_protocol_step.method_type
 _ma_protocol_step.step_name
+_ma_protocol_step.details
 _ma_protocol_step.software_group_id
 _ma_protocol_step.input_data_group_id
 _ma_protocol_step.output_data_group_id
-1 1 1 'template search' ModPipe 1 1 3
-2 1 2 modeling . 2 3 4
-3 1 3 'model selection' . 1 4 4
-#
-#
-loop_
-_ma_qa_metric.id
-_ma_qa_metric.name
-_ma_qa_metric.description
-_ma_qa_metric.type
-_ma_qa_metric.mode
-_ma_qa_metric.type_other_details
-_ma_qa_metric.software_group_id
-1 MPQS 'ModPipe Quality Score' other global
-'composite score, values >1.1 are considered reliable' 1
-2 zDOPE 'Normalized DOPE' zscore global . 2
-3 'TSVMod RMSD' 'TSVMod predicted RMSD (MSALL)' distance global . .
-4 'TSVMod NO35' 'TSVMod predicted native overlap (MSALL)' other global . .
-#
-#
-loop_
-_ma_qa_metric_global.ordinal_id
-_ma_qa_metric_global.model_id
-_ma_qa_metric_global.metric_id
-_ma_qa_metric_global.metric_value
-1 1 1 0.853452
-2 1 2 0.31
-3 1 3 12.996
-4 1 4 0.143
+1 1 1 'template search' ModPipe . 1 1 4
+2 1 2 modeling . . 2 2 3
+3 1 3 'model selection' . . 1 3 3
 #
 #
 loop_
@@ -201,57 +244,38 @@ _ma_model_list.model_group_name
 _ma_model_list.assembly_id
 _ma_model_list.data_id
 _ma_model_list.model_type
-1 1 1 'Selected model' . 1 4 'Homology model'
-#
-#
-loop_
-_struct_asym.id
-_struct_asym.entity_id
-_struct_asym.details
-A 1 ?
-#
-#
-loop_
-_pdbx_poly_seq_scheme.asym_id
-_pdbx_poly_seq_scheme.entity_id
-_pdbx_poly_seq_scheme.seq_id
-_pdbx_poly_seq_scheme.mon_id
-_pdbx_poly_seq_scheme.pdb_seq_num
-_pdbx_poly_seq_scheme.auth_seq_num
-_pdbx_poly_seq_scheme.pdb_mon_id
-_pdbx_poly_seq_scheme.auth_mon_id
-_pdbx_poly_seq_scheme.pdb_strand_id
-A 1 1 GLU 9 9 GLU GLU A
+_ma_model_list.model_type_other_details
+1 1 1 'Target Structure' 'All models' 1 3 'Homology model' .
 #
 #
 loop_
 _atom_site.group_PDB
+_atom_site.id
 _atom_site.type_symbol
 _atom_site.label_atom_id
+_atom_site.label_alt_id
 _atom_site.label_comp_id
-_atom_site.label_asym_id
 _atom_site.label_seq_id
 _atom_site.auth_seq_id
 _atom_site.pdbx_PDB_ins_code
-_atom_site.auth_asym_id
-_atom_site.label_alt_id
+_atom_site.label_asym_id
 _atom_site.Cartn_x
 _atom_site.Cartn_y
 _atom_site.Cartn_z
 _atom_site.occupancy
-_atom_site.B_iso_or_equiv
 _atom_site.label_entity_id
+_atom_site.auth_asym_id
+_atom_site.B_iso_or_equiv
 _atom_site.pdbx_PDB_model_num
-_atom_site.id
-ATOM N N GLU A 1 9 ? A . 6.074 25.683 -20.291 1.00 77.44 1 1 1
-ATOM C CA GLU A 1 9 ? A . 4.616 25.924 -20.396 1.00 77.44 1 1 2
-ATOM C CB GLU A 1 9 ? A . 4.343 27.032 -21.429 1.00 77.44 1 1 3
-ATOM C CG GLU A 1 9 ? A . 4.806 28.417 -20.968 1.00 77.44 1 1 4
-ATOM C CD GLU A 1 9 ? A . 4.505 29.414 -22.078 1.00 77.44 1 1 5
-ATOM O OE1 GLU A 1 9 ? A . 4.239 28.958 -23.221 1.00 77.44 1 1 6
-ATOM O OE2 GLU A 1 9 ? A . 4.543 30.643 -21.801 1.00 77.44 1 1 7
-ATOM C C GLU A 1 9 ? A . 3.913 24.679 -20.823 1.00 77.44 1 1 8
-ATOM O O GLU A 1 9 ? A . 2.695 24.664 -20.996 1.00 77.44 1 1 9
+ATOM 1 N N . GLU 1 9 ? A 6.074 25.683 -20.291 1.00 1 A 77.44 1
+ATOM 2 C CA . GLU 1 9 ? A 4.616 25.924 -20.396 1.00 1 A 77.44 1
+ATOM 3 C CB . GLU 1 9 ? A 4.343 27.032 -21.429 1.00 1 A 77.44 1
+ATOM 4 C CG . GLU 1 9 ? A 4.806 28.417 -20.968 1.00 1 A 77.44 1
+ATOM 5 C CD . GLU 1 9 ? A 4.505 29.414 -22.078 1.00 1 A 77.44 1
+ATOM 6 O OE1 . GLU 1 9 ? A 4.239 28.958 -23.221 1.00 1 A 77.44 1
+ATOM 7 O OE2 . GLU 1 9 ? A 4.543 30.643 -21.801 1.00 1 A 77.44 1
+ATOM 8 C C . GLU 1 9 ? A 3.913 24.679 -20.823 1.00 1 A 77.44 1
+ATOM 9 O O . GLU 1 9 ? A 2.695 24.664 -20.996 1.00 1 A 77.44 1
 #
 #
 loop_
@@ -259,4 +283,33 @@ _atom_type.symbol
 C
 N
 O
+#
+#
+loop_
+_ma_qa_metric.id
+_ma_qa_metric.name
+_ma_qa_metric.description
+_ma_qa_metric.type
+_ma_qa_metric.mode
+_ma_qa_metric.type_other_details
+_ma_qa_metric.software_group_id
+1 GA341 'GA341 fold reliability score' 'normalized score' global . 2
+2 MPQS 'ModPipe Quality Score' other global
+'composite score, values >1.1 are considered reliable' 1
+3 zDOPE 'Normalized DOPE' zscore global . 2
+4 'TSVMod RMSD' 'TSVMod predicted RMSD (MSALL)' distance global . .
+5 'TSVMod NO35' 'TSVMod predicted native overlap (MSALL)' 'normalized score'
+global . .
+#
+#
+loop_
+_ma_qa_metric_global.ordinal_id
+_ma_qa_metric_global.model_id
+_ma_qa_metric_global.metric_id
+_ma_qa_metric_global.metric_value
+1 1 1 0.82
+2 1 2 0.853452
+3 1 3 0.31
+4 1 4 12.996
+5 1 5 0.143
 #

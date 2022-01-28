@@ -4,17 +4,34 @@ import re
 import os
 import sys
 import collections
-import operator
 import gzip
-import itertools
 import ihm.reader
-import ihm.format
-import ihm.format_bcif
+import ihm.citations
+import modelcif
+import modelcif.dumper
+import modelcif.model
+import modelcif.alignment
+import modelcif.reference
+from modelcif.alignment import ShorterSequenceIdentity as SequenceIdentity
+import modelcif.protocol
+
+
+class RefSeq(modelcif.reference.TargetReference):
+    """RefSeq"""
+
+
+class PlasmoDB(modelcif.reference.TargetReference):
+    """PlasmoDB"""
+
+
+class MPQSMetricType(modelcif.qa_metric.MetricType):
+    """composite score, values >1.1 are considered reliable"""
+
 
 # Single sequence in a Modeller alignment
 Sequence = collections.namedtuple(
     "Sequence", ["seqtyp", "chain", "method", "gapped", "primary",
-                 "primary_can", "primary_print"])
+                 "primary_can"])
 
 
 # Reference sequence database
@@ -81,535 +98,9 @@ class Alignment:
         # template).
         primary_can = gapped.replace('-', '')
         primary = ['UNK' if x == 'X' else x for x in primary_can]
-        # Primary sequence suitable for printing, e.g. "ACG(UNK)"
-        primary_print = "".join('(%s)' % x if len(x) > 1 else x
-                                for x in primary)
         return Sequence(
             seqtyp=header[0], chain=header[3], method=header[7],
-            gapped=gapped, primary=primary, primary_can=primary_can,
-            primary_print=primary_print)
-
-
-class CifWriter:
-    def __init__(self, writer, align):
-        class CifID:
-            pass
-
-        self.writer = writer
-        self.align = align
-        # Assign consecutive CIF numeric IDs from 1
-        self.target = CifID()
-        self.coord = CifID()
-        self.template = CifID()
-        self.alignment = CifID()
-        if align:
-            self.template.entity_id, self.target.entity_id = 1, 2
-            # If target and template have same sequence, use one entity
-            # for both
-            if align.template.primary == align.target.primary:
-                self.target.entity_id = self.template.entity_id
-        else:
-            self.target.entity_id = 1
-        self.template.data_id, self.target.data_id = 1, 2
-        self.alignment.data_id, self.coord.data_id = 3, 4
-
-    def flush(self):
-        self.writer.flush()
-
-    def loop(self, category, keys):
-        return self.writer.loop(category, keys)
-
-    def write_header(self, model_id, title):
-        self.writer.start_block("model_%s" % model_id)
-        entry_id = "modbase_model_%s" % model_id
-        with self.writer.category("_entry") as lp:
-            lp.write(id=entry_id)
-        with self.writer.category("_struct") as lp:
-            lp.write(entry_id=entry_id, title=title,
-                     pdbx_structure_determination_methodology="computational")
-        with self.writer.category("_database_2") as lp:
-            lp.write(database_id="MODBASE", database_code=model_id)
-
-    def write_exptl(self, model_id, expdta):
-        if expdta.startswith('THEORETICAL MODEL, '):
-            details = expdta[19:]
-            with self.writer.category("_exptl") as cat:
-                cat.write(entry_id="modbase_model_%s" % model_id,
-                          method='THEORETICAL MODEL', details=details)
-
-    def write_audit_author(self):
-        ordinal = itertools.count(1)
-        with self.loop("_audit_author", ["name", "pdbx_ordinal"]) as lp:
-            lp.write(name='Pieper U', pdbx_ordinal=next(ordinal))
-            lp.write(name='Webb B', pdbx_ordinal=next(ordinal))
-            lp.write(name='Narayanan E', pdbx_ordinal=next(ordinal))
-            lp.write(name='Sali A', pdbx_ordinal=next(ordinal))
-
-    def write_citation(self):
-        with self.loop(
-                "_citation",
-                ["id", "title", "journal_abbrev", "journal_volume",
-                 "page_first", "page_last", "year", "pdbx_database_id_PubMed",
-                 "pdbx_database_id_DOI"]) as lp:
-            # MODELLER paper
-            lp.write(id=1,
-                     title="Comparative Protein Modelling by Satisfaction of "
-                           "Spatial Restraints",
-                     journal_abbrev='J Mol Biol', journal_volume=234,
-                     page_first=779, page_last=815, year=1993,
-                     pdbx_database_id_PubMed=8254673,
-                     pdbx_database_id_DOI="10.1006/jmbi.1993.1626")
-        ordinal = itertools.count(1)
-        with self.loop(
-                "_citation_author", ["citation_id", "name", "ordinal"]) as lp:
-            lp.write(citation_id=1, name='Sali A', ordinal=next(ordinal))
-            lp.write(citation_id=1, name='Blundell T L', ordinal=next(ordinal))
-
-    def write_software(self, modpipe_version, modeller_version):
-        ordinal = itertools.count(1)
-        with self.loop(
-                "_software",
-                ["pdbx_ordinal", "name", "classification",
-                 "version", "type", "location", "citation_id"]) as lp:
-            lp.write(pdbx_ordinal=next(ordinal),
-                     name="ModPipe", classification='comparative modeling',
-                     version=modpipe_version, type="program",
-                     location="https://salilab.org/modpipe/",
-                     citation_id=None)
-            lp.write(pdbx_ordinal=next(ordinal),
-                     name="MODELLER", classification='comparative modeling',
-                     version=modeller_version, type="program",
-                     location="https://salilab.org/modeller/",
-                     citation_id=1)
-
-        # Put each piece of software in its own group
-        with self.loop(
-                "_ma_software_group",
-                ["ordinal_id", "group_id", "software_id"]) as lp:
-            for i in range(1, 3):
-                lp.write(ordinal_id=i, group_id=i, software_id=i)
-
-    def write_chem_comp(self, sequence3):
-        seen_one_letter = set(three_to_one[x] for x in sequence3)
-        if self.align:
-            seen_one_letter.update(self.align.template.primary)
-        al = ihm.LPeptideAlphabet()
-        # Monkey-patch older python-ihm to add support for ASX/GLX
-        if 'B' not in al._comps:
-            # element mass cannot be zero so use a very small value instead
-            ihm.ChemComp._element_mass['X'] = 1e-9
-            al._comps['B'] = ihm.LPeptideChemComp(
-                id='ASX', code='B', code_canonical='B',
-                name='ASP/ASN AMBIGUOUS', formula='C4 H6 N O2 X2')
-            al._comps['Z'] = ihm.LPeptideChemComp(
-                id='GLX', code='Z', code_canonical='Z',
-                name='GLU/GLN AMBIGUOUS', formula='C5 H8 N O2 X2')
-        comps = [al[code] for code in seen_one_letter]
-
-        with self.loop(
-                "_chem_comp",
-                ["id", "type", "name", "formula", "formula_weight"]) as lp:
-            for cc in sorted(comps, key=operator.attrgetter('id')):
-                lp.write(id=cc.id, type=cc.type, name=cc.name,
-                         formula=cc.formula, formula_weight=cc.formula_weight)
-
-    def write_entity_details(self, sequence3):
-        # entities for target (and template if we have alignment that is
-        # not 100% identical)
-        with self.loop(
-                "_entity",
-                ["id", "type", "src_method", "pdbx_description"]) as lp:
-            desc = "target"
-            if self.align:
-                if self.template.entity_id != self.target.entity_id:
-                    lp.write(id=self.template.entity_id, type="polymer",
-                             src_method="man", pdbx_description="template")
-                else:
-                    desc = "target and template"
-            lp.write(id=self.target.entity_id, type="polymer",
-                     src_method="man", pdbx_description=desc)
-
-        target_primary = "".join(three_to_one[x] for x in sequence3)
-
-        with self.loop(
-                "_entity_poly",
-                ["entity_id", "type", "nstd_linkage",
-                 "pdbx_seq_one_letter_code",
-                 "pdbx_seq_one_letter_code_can"]) as lp:
-            if self.align:
-                if self.align.target.primary_can != target_primary:
-                    raise ValueError(
-                        "Model sequence does not match target "
-                        "canonical sequence in alignment:",
-                        target_primary, self.align.target.primary_can)
-                if (self.align
-                        and self.template.entity_id != self.target.entity_id):
-                    p = self.align.template.primary_print
-                    p_can = self.align.template.primary_can
-                    lp.write(entity_id=self.template.entity_id,
-                             type="polypeptide(L)", nstd_linkage="no",
-                             pdbx_seq_one_letter_code=p,
-                             pdbx_seq_one_letter_code_can=p_can)
-            lp.write(entity_id=self.target.entity_id,
-                     type="polypeptide(L)", nstd_linkage="no",
-                     pdbx_seq_one_letter_code=target_primary,
-                     pdbx_seq_one_letter_code_can=target_primary)
-
-        with self.loop(
-                "_entity_poly_seq",
-                ["entity_id", "num", "mon_id", "hetero"]) as lp:
-            if self.align and self.template.entity_id != self.target.entity_id:
-                p = self.align.template.primary
-                for i, s in enumerate(p):
-                    lp.write(entity_id=self.template.entity_id, num=i+1,
-                             # non-standard residues already use the full name
-                             mon_id=s if len(s) > 1 else one_to_three[s],
-                             hetero=None)
-            for i, s in enumerate(sequence3):
-                lp.write(entity_id=self.target.entity_id, num=i+1,
-                         mon_id=s, hetero=None)
-
-    def write_template_details(self, chain_id, tmpbeg, tmpend, tmpasym,
-                               pdb_code):
-        if not self.align:
-            return
-        # Define the identity transformation (id=1)
-        with self.writer.loop(
-                "_ma_template_trans_matrix",
-                ["id",
-                 "rot_matrix[1][1]", "rot_matrix[2][1]", "rot_matrix[3][1]",
-                 "rot_matrix[1][2]", "rot_matrix[2][2]", "rot_matrix[3][2]",
-                 "rot_matrix[1][3]", "rot_matrix[2][3]", "rot_matrix[3][3]",
-                 "tr_vector[1]", "tr_vector[2]", "tr_vector[3]"]) as lp:
-            lp.write(id=1, rot_matrix11="1.0", rot_matrix22="1.0",
-                     rot_matrix33="1.0", rot_matrix12="0.0",
-                     rot_matrix13="0.0", rot_matrix21="0.0",
-                     rot_matrix23="0.0", rot_matrix31="0.0",
-                     rot_matrix32="0.0", tr_vector1="0.0",
-                     tr_vector2="0.0", tr_vector3="0.0")
-
-        with self.loop(
-                "_ma_template_details",
-                ["ordinal_id", "template_id", "template_origin",
-                 "template_entity_type", "template_trans_matrix_id",
-                 "template_data_id", "target_asym_id",
-                 "template_label_asym_id", "template_label_entity_id",
-                 "template_model_num"]) as lp:
-            # template structure is data_id=1
-            # trans_matrix_id=1 is the identity transformation
-            # model_num=1 because Modeller always uses the first PDB model
-            lp.write(ordinal_id=1, template_id=1,
-                     template_origin="reference database",
-                     template_entity_type="polymer",
-                     template_trans_matrix_id=1,
-                     template_data_id=self.template.data_id,
-                     target_asym_id=chain_id, template_label_asym_id=tmpasym,
-                     template_label_entity_id=1, template_model_num=1)
-
-        with self.loop(
-                "_ma_template_poly",
-                ["template_id", "seq_one_letter_code",
-                 "seq_one_letter_code_can"]) as lp:
-            p = self.align.template.primary_print
-            p_can = self.align.template.primary_can
-            lp.write(template_id=1, seq_one_letter_code=p,
-                     seq_one_letter_code_can=p_can)
-
-        if self.align:
-            # template_id makes no sense if we have no alignment
-            with self.loop(
-                    "_ma_template_poly_segment",
-                    ["id", "template_id", "residue_number_begin",
-                     "residue_number_end"]) as lp:
-                lp.write(id=1, template_id=1, residue_number_begin=tmpbeg,
-                         residue_number_end=tmpend)
-
-        with self.loop(
-                "_ma_template_ref_db_details",
-                ["template_id", "db_name", "db_accession_code"]) as lp:
-            lp.write(template_id=1, db_name="PDB", db_accession_code=pdb_code)
-
-    def write_target_details(self, chain_id, sequence3, seqdb, tgtbeg, tgtend):
-        with self.loop(
-                "_ma_target_entity", ["entity_id", "data_id", "origin"]) as lp:
-            lp.write(entity_id=self.target.entity_id,
-                     data_id=self.target.data_id, origin=None)
-
-        with self.loop(
-                "_ma_target_entity_instance",
-                ["asym_id", "entity_id", "details"]) as lp:
-            lp.write(asym_id=chain_id, entity_id=self.target.entity_id,
-                     details=None)
-
-        if self.align:
-            # Cannot write a template segment ID without an alignment
-            with self.loop(
-                    "_ma_target_template_poly_mapping",
-                    ["id", "template_segment_id", "target_asym_id",
-                     "target_seq_id_begin", "target_seq_id_end"]) as lp:
-                lp.write(id=1, template_segment_id=1, target_asym_id=chain_id,
-                         target_seq_id_begin=1,
-                         target_seq_id_end=len(sequence3))
-
-        with self.loop(
-                "_ma_target_ref_db_details",
-                ["target_entity_id", "db_name", "db_name_other_details",
-                 "db_code", "db_accession", "seq_db_isoform",
-                 "seq_db_align_begin", "seq_db_align_end"]) as lp:
-            for db in seqdb:
-                if db.name == 'UniProt':
-                    lp.write(target_entity_id=self.target.entity_id,
-                             db_name="UNP", db_name_other_details=None,
-                             db_code=db.code, db_accession=db.accession,
-                             seq_db_isoform=ihm.unknown,
-                             seq_db_align_begin=tgtbeg,
-                             seq_db_align_end=tgtend)
-                elif db.name in ('RefSeq', 'PlasmoDB'):
-                    lp.write(target_entity_id=self.target.entity_id,
-                             db_name="Other", db_name_other_details=db.name,
-                             db_code=db.code, db_accession=db.accession,
-                             seq_db_isoform=ihm.unknown,
-                             seq_db_align_begin=tgtbeg,
-                             seq_db_align_end=tgtend)
-
-    def write_alignment(self, chain_id, identity, evalue):
-        if not self.align:
-            return
-        # Just one target-template alignment (one template, one chain) so this
-        # table is pretty simple:
-        with self.loop(
-                "_ma_alignment_info",
-                ["alignment_id", "data_id", "software_group_id",
-                 "alignment_length", "alignment_type",
-                 "alignment_mode"]) as lp:
-            # ModPipe is software_group_id=1
-            lp.write(alignment_id=1, data_id=self.alignment.data_id,
-                     software_group_id=1,
-                     alignment_length=len(self.align.template.gapped),
-                     alignment_type="target-template pairwise alignment",
-                     alignment_mode="global")
-
-        denom = "Length of the shorter sequence"
-        with self.loop(
-                "_ma_alignment_details",
-                ["ordinal_id", "alignment_id", "template_segment_id",
-                 "target_asym_id", "score_type", "score_value",
-                 "percent_sequence_identity",
-                 "sequence_identity_denominator"]) as lp:
-            lp.write(ordinal_id=1, alignment_id=1, template_segment_id=1,
-                     target_asym_id=chain_id, score_type='BLAST e-value',
-                     score_value=evalue, percent_sequence_identity=identity,
-                     sequence_identity_denominator=denom)
-
-        with self.loop(
-                "_ma_alignment",
-                ["ordinal_id", "alignment_id", "target_template_flag",
-                 "sequence"]) as lp:
-            ordinal = itertools.count(1)
-            # Template (flag=2)
-            lp.write(ordinal_id=next(ordinal), alignment_id=1,
-                     target_template_flag=2,
-                     sequence=self.align.template.gapped)
-            # Target (flag=1)
-            lp.write(ordinal_id=next(ordinal), alignment_id=1,
-                     target_template_flag=1,
-                     sequence=self.align.target.gapped)
-
-    def write_assembly(self, chain_id, sequence3):
-        with self.loop(
-                '_ma_struct_assembly',
-                ['ordinal_id', 'assembly_id', 'entity_id', 'asym_id',
-                 'seq_id_begin', 'seq_id_end']) as lp:
-            # Simple assembly of a single chain
-            lp.write(ordinal_id=1, assembly_id=1,
-                     entity_id=self.target.entity_id, asym_id=chain_id,
-                     seq_id_begin=1, seq_id_end=len(sequence3))
-
-    def write_data(self):
-        with self.loop("_ma_data", ["id", "name", "content_type"]) as lp:
-            lp.write(id=self.template.data_id, name='Template Structure',
-                     content_type='template structure')
-            lp.write(id=self.target.data_id, name='Target Sequence',
-                     content_type='target')
-            lp.write(id=self.alignment.data_id,
-                     name='Target Template Alignment',
-                     content_type='target-template alignment')
-            lp.write(id=self.coord.data_id,
-                     name='Target Structure',
-                     content_type='model coordinates')
-
-        # Put each data item in its own group
-        with self.loop(
-                "_ma_data_group", ["ordinal_id", "group_id", "data_id"]) as lp:
-            for i in range(1, 5):
-                lp.write(ordinal_id=i, group_id=i, data_id=i)
-
-    def write_protocol(self):
-        with self.loop(
-                '_ma_protocol_step',
-                ['ordinal_id', 'protocol_id', 'step_id', 'method_type',
-                 'step_name', 'software_group_id', 'input_data_group_id',
-                 'output_data_group_id']) as lp:
-            ordinal = itertools.count(1)
-            # step 1, template search
-            # template source is the ModPipe fold assignment method
-            # ModPipe is software_id=1
-            # takes as input the template
-            # makes as output the alignment
-            mth = " %s" % self.align.template.method if self.align else ''
-            lp.write(ordinal_id=next(ordinal), protocol_id=1, step_id=1,
-                     method_type='template search',
-                     step_name='ModPipe%s' % mth, software_group_id=1,
-                     input_data_group_id=self.template.data_id,
-                     output_data_group_id=self.alignment.data_id)
-
-            # step 2, modeling
-            # MODELLER is software_id=2
-            # takes as input the alignment
-            # makes as output the coordinates
-            lp.write(ordinal_id=next(ordinal), protocol_id=1, step_id=2,
-                     method_type='modeling',
-                     step_name=None, software_group_id=2,
-                     input_data_group_id=self.alignment.data_id,
-                     output_data_group_id=self.coord.data_id)
-
-            # step 3, model selection
-            # takes as input the coordinates and returns them unchanged
-            lp.write(ordinal_id=next(ordinal), protocol_id=1, step_id=3,
-                     method_type='model selection',
-                     step_name=None, software_group_id=1,
-                     input_data_group_id=self.coord.data_id,
-                     output_data_group_id=self.coord.data_id)
-
-    def write_scores(self, tsvmod_method, tsvmod_rmsd, tsvmod_no35, ga341,
-                     zdope, mpqs):
-        if not mpqs:
-            return
-        ordinal = itertools.count(1)
-        with self.loop(
-                '_ma_qa_metric',
-                ['id', 'name', 'description', 'type', 'mode',
-                 'type_other_details', 'software_group_id']) as lp:
-            # ModPipe is software_id=1
-            lp.write(id=next(ordinal), name='MPQS',
-                     description='ModPipe Quality Score',
-                     type="other", mode="global",
-                     type_other_details="composite score, values >1.1 are "
-                                        "considered reliable",
-                     software_group_id=1)
-
-            # MODELLER is software_id=2
-            lp.write(id=next(ordinal), name="zDOPE",
-                     description='Normalized DOPE',
-                     type="zscore", mode="global", software_group_id=2)
-
-            if tsvmod_rmsd:
-                lp.write(id=next(ordinal), name='TSVMod RMSD',
-                         description='TSVMod predicted RMSD (%s)'
-                                     % tsvmod_method,
-                         type="distance", mode="global")
-                lp.write(id=next(ordinal), name='TSVMod NO35',
-                         description="TSVMod predicted native "
-                                     "overlap (%s)" % tsvmod_method,
-                         type="other", mode="global")
-
-        with self.loop(
-                '_ma_qa_metric_global',
-                ['ordinal_id', 'model_id', 'metric_id', 'metric_value']) as lp:
-            ordinal = itertools.count(1)
-            lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=1,
-                     metric_value=mpqs)
-            lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=2,
-                     metric_value=zdope)
-            if tsvmod_rmsd:
-                lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=3,
-                         metric_value=tsvmod_rmsd)
-                lp.write(ordinal_id=next(ordinal), model_id=1, metric_id=4,
-                         metric_value=tsvmod_no35)
-
-    def write_model_list(self):
-        with self.loop(
-                '_ma_model_list',
-                ['ordinal_id', 'model_id', 'model_group_id', 'model_name',
-                 'model_group_name', 'assembly_id', 'data_id',
-                 'model_type']) as lp:
-            lp.write(ordinal_id=1, model_id=1, model_group_id=1,
-                     model_name='Selected model', assembly_id=1,
-                     data_id=self.coord.data_id, model_type='Homology model')
-
-    def write_asym(self, chain_id):
-        with self.loop('_struct_asym', ['id', 'entity_id', 'details']) as lp:
-            lp.write(id=chain_id, entity_id=self.target.entity_id,
-                     details=ihm.unknown)
-
-    def write_seq_scheme(self, chain_id, sequence3, tgtbeg, tgtend):
-        assert len(sequence3) == tgtend - tgtbeg + 1
-        entity_id = self.target.entity_id
-        with self.loop(
-            '_pdbx_poly_seq_scheme',
-            ['asym_id', 'entity_id', 'seq_id', 'mon_id', 'pdb_seq_num',
-             'auth_seq_num', 'pdb_mon_id', 'auth_mon_id',
-             'pdb_strand_id']) as lp:
-            for i, s in enumerate(sequence3):
-                seqid = 1 + i
-                auth_seqid = tgtbeg + i
-                lp.write(asym_id=chain_id, entity_id=entity_id, seq_id=seqid,
-                         mon_id=s, pdb_seq_num=auth_seqid,
-                         auth_seq_num=auth_seqid, pdb_mon_id=s, auth_mon_id=s,
-                         pdb_strand_id=chain_id)
-
-    def write_atom_site(self, chain_id, atoms, resnum_begin, resnum_end):
-        elements = set()
-        auth_seqid = resnum_begin
-        entity_id = self.target.entity_id
-        seqid = 1
-        ordinal = itertools.count(1)
-        pdb_resnum = None
-        with self.loop(
-            '_atom_site',
-            ['group_PDB', 'type_symbol', 'label_atom_id',
-             'label_comp_id', 'label_asym_id', 'label_seq_id',
-             'auth_seq_id', 'pdbx_PDB_ins_code', 'auth_asym_id',
-             'label_alt_id', 'Cartn_x', 'Cartn_y', 'Cartn_z',
-             'occupancy', 'B_iso_or_equiv', 'label_entity_id',
-             'pdbx_PDB_model_num', 'id']) as lp:
-            for a in atoms:
-                # Detect new residue if PDB resnum changed
-                pdb_this_resnum = a[22:26]
-                if pdb_resnum is not None and pdb_this_resnum != pdb_resnum:
-                    auth_seqid += 1
-                    seqid += 1
-                pdb_resnum = pdb_this_resnum
-                inscode = a[26:27].strip() or ihm.unknown
-                group_pdb = a[:6].strip()
-                element = a[76:78].strip() or ihm.unknown
-                # Very old PDBs don't have sequence where the element should
-                # be, so ignore that; guess element as the first character
-                # of name
-                if a[73:76] == '1SG':
-                    element = a[13:14].strip() or ihm.unknown
-                elements.add(element)
-                atmnam = a[12:16].strip()
-                resnam = a[17:20].strip()
-                x = a[30:38].strip()
-                y = a[38:46].strip()
-                z = a[46:54].strip()
-                occ = a[54:60].strip()
-                tfac = a[60:66].strip()
-                lp.write(group_PDB=group_pdb, type_symbol=element,
-                         label_atom_id=atmnam, label_comp_id=resnam,
-                         label_asym_id=chain_id, label_seq_id=seqid,
-                         auth_seq_id=auth_seqid, pdbx_PDB_ins_code=inscode,
-                         auth_asym_id=chain_id, label_alt_id=None, Cartn_x=x,
-                         Cartn_y=y, Cartn_z=z, occupancy=occ,
-                         B_iso_or_equiv=tfac, label_entity_id=entity_id,
-                         pdbx_PDB_model_num=1,
-                         id=next(ordinal))
-        assert auth_seqid == resnum_end
-
-        with self.loop('_atom_type', ['symbol']) as lp:
-            for element in sorted(elements):
-                lp.write(symbol=element)
+            gapped=gapped, primary=primary, primary_can=primary_can)
 
 
 class _PolySeqSchemeHandler(ihm.reader.Handler):
@@ -727,54 +218,196 @@ class Structure:
                 yield a[17:20].strip()  # residue name
                 resnum = this_resnum
 
-    def write_mmcif(self, writer, align):
-        """Write current structure out to a mmCIF file handle"""
-        # mmCIF models must always have a chain ID; older ModBase PDB models
-        # had a blank ID
-        chain_id = self.chain_id.strip() or 'A'
-        sequence3 = list(self.get_sequence3())
-        modeller_version = self.get_modeller_version() or '?'
+    def get_system(self, align):
+        """Create and return an modelcif.System object"""
         if align:
             align = Alignment(align)
+        tgt_primary = [three_to_one[x] for x in self.get_sequence3()]
 
-        c = CifWriter(writer, align)
-        c.write_header(self.remarks['MODPIPE MODEL ID'], self.title)
-        c.write_exptl(self.remarks['MODPIPE MODEL ID'], self.expdta)
-        c.write_audit_author()
-        c.write_citation()
-        c.write_software(self.modpipe_version, modeller_version)
-        c.write_chem_comp(sequence3)
-        c.write_entity_details(sequence3)
-        template_pdb = self.remarks['TEMPLATE PDB']
-        # Some very old models use single-chain PDB templates with no chain ID.
-        # These have all since been remediated, almost certainly to use chain
-        # ID 'A'.
-        template_chain = self.remarks['TEMPLATE CHAIN'] or 'A'
-        tmpbeg, tmpend, tmpasym = self.get_mmcif_template_info(
-            self.remarks['TEMPLATE BEGIN'], self.remarks['TEMPLATE END'],
-            template_chain, template_pdb)
-        c.write_template_details(
-            chain_id, tmpbeg, tmpend, tmpasym, template_pdb)
+        model_id = self.remarks['MODPIPE MODEL ID']
+        s = modelcif.System(
+            title=self.title, id='model_' + model_id,
+            database=modelcif.Database(id='MODBASE', code=model_id))
+        c = ihm.Citation(
+            title="ModBase, a database of annotated comparative protein "
+                  "structure models and associated resources",
+            journal="Nucleic Acids Res", volume=42,
+            page_range=('D336', 'D346'), year=2014, pmid=24271400,
+            authors=['Pieper U', 'Webb BM', 'Dong GQ', 'Schneidman-Duhovny D',
+                     'Fan H', 'Kim SJ', 'Khuri N', 'Spill YG', 'Weinkam P',
+                     'Hammel M', 'Tainer JA', 'Nilges M', 'Sali A'],
+            doi='10.1093/nar/gkt1144')
+        s.citations.append(c)
+
+        s.authors.extend(('Pieper U', 'Webb B', 'Narayanan E', 'Sali A'))
+        modpipe_software = modelcif.Software(
+            name='ModPipe', classification='comparative modeling',
+            location='https://salilab.org/modpipe/', type='program',
+            version=self.modpipe_version,
+            description='Comparative modeling pipeline')
+        modeller_software = modelcif.Software(
+            name='MODELLER', classification='comparative modeling',
+            location='https://salilab.org/modeller/', type='program',
+            version=self.get_modeller_version(),
+            citation=ihm.citations.modeller,
+            description='Comparative modeling by satisfaction of '
+                        'spatial restraints')
+
         tgtbeg = int(self.remarks['TARGET BEGIN'])
         tgtend = int(self.remarks['TARGET END'])
-        c.write_target_details(chain_id, sequence3, self.seqdb, tgtbeg, tgtend)
-        c.write_alignment(chain_id, self.remarks['SEQUENCE IDENTITY'],
-                          self.remarks['EVALUE'])
-        c.write_assembly(chain_id, sequence3)
-        c.write_data()
-        c.write_protocol()
-        c.write_scores(
-            self.remarks.get('TSVMOD METHOD'), self.remarks.get('TSVMOD RMSD'),
-            self.remarks.get('TSVMOD NO35'),
-            self.remarks.get('GA341 SCORE', self.remarks.get('MODEL SCORE')),
-            self.remarks.get('zDOPE SCORE', self.remarks.get('ZDOPE SCORE')),
-            self.remarks.get('MPQS',
-                             self.remarks.get('MODPIPE QUALITY SCORE')))
-        c.write_model_list()
-        c.write_asym(chain_id)
-        c.write_seq_scheme(chain_id, sequence3, tgtbeg, tgtend)
-        c.write_atom_site(chain_id, self.atoms, tgtbeg, tgtend)
-        c.flush()
+        if align:
+            template_e = modelcif.Entity(align.template.primary,
+                                         description="Template")
+            template_pdb = self.remarks['TEMPLATE PDB']
+            # Some very old models use single-chain PDB templates with no
+            # chain ID. These have all since been remediated, almost certainly
+            # to use chain ID 'A'.
+            template_chain = self.remarks['TEMPLATE CHAIN'] or 'A'
+            tmpbeg, tmpend, tmpasym = self.get_mmcif_template_info(
+                self.remarks['TEMPLATE BEGIN'], self.remarks['TEMPLATE END'],
+                template_chain, template_pdb)
+            template = modelcif.Template(
+                entity=template_e, asym_id=tmpasym, model_num=1,
+                name="Template structure",
+                transformation=modelcif.Transformation.identity(),
+                references=[modelcif.reference.PDB(template_pdb)])
+        if align and align.template.primary == tgt_primary:
+            target_e = template_e
+            target_e.description = "Target and template"
+        else:
+            target_e = modelcif.Entity(tgt_primary, description="Target")
+        target_e.references.extend(self.get_target_refs(tgtbeg, tgtend))
+        chain_id = self.chain_id.strip() or 'A'
+        asym = modelcif.AsymUnit(target_e, details='Model subunit',
+                                 id=chain_id, auth_seq_id_map=tgtbeg-1)
+        asmb = modelcif.Assembly((asym,), name='Modeled assembly')
+
+        class OurAlignment(modelcif.alignment.Global,
+                           modelcif.alignment.Pairwise):
+            pass
+        if align:
+            p = modelcif.alignment.Pair(
+                template=template.segment(align.template.gapped,
+                                          tmpbeg, tmpend),
+                target=asym.segment(align.target.gapped,
+                                    1, len(align.target.primary)),
+                score=modelcif.alignment.BLASTEValue(self.remarks['EVALUE']),
+                identity=SequenceIdentity(self.remarks['SEQUENCE IDENTITY']))
+            aln = OurAlignment(name="Target Template Alignment",
+                               software=modpipe_software, pairs=[p])
+        else:
+            aln = OurAlignment(name="Target Template Alignment",
+                               software=modpipe_software, pairs=[])
+        s.alignments.append(aln)
+        modeling_input = modelcif.data.DataGroup((aln, target_e))
+        if align:
+            modeling_input.append(template)
+
+        model = self.get_model_class(asym, self.atoms)(
+                assembly=asmb, name='Target Structure')
+        model.qa_metrics.extend(self.get_scores(modeller_software,
+                                                modpipe_software))
+
+        model_group = modelcif.model.ModelGroup([model], name='All models')
+        s.model_groups.append(model_group)
+
+        protocol = modelcif.protocol.Protocol()
+        mth = " %s" % align.template.method if align else ''
+        protocol.steps.append(modelcif.protocol.TemplateSearchStep(
+            name='ModPipe%s' % mth, software=modpipe_software,
+            input_data=target_e, output_data=aln))
+        protocol.steps.append(modelcif.protocol.ModelingStep(
+            software=modeller_software, input_data=modeling_input,
+            output_data=model))
+        protocol.steps.append(modelcif.protocol.ModelSelectionStep(
+            software=modpipe_software, input_data=model, output_data=model))
+        s.protocols.append(protocol)
+
+        return s
+
+    def get_target_refs(self, tgtbeg, tgtend):
+        refmap = {'UniProt': modelcif.reference.UniProt,
+                  'RefSeq': RefSeq,
+                  'PlasmoDB': PlasmoDB}
+        for db in self.seqdb:
+            cls = refmap.get(db.name)
+            if cls:
+                yield cls(code=db.code, accession=db.accession,
+                          align_begin=tgtbeg, align_end=tgtend)
+
+    def get_model_class(self, asym, atoms):
+        class MyModel(modelcif.model.HomologyModel):
+            def get_atoms(self):
+                pdb_resnum = None
+                seqid = 1
+                for a in atoms:
+                    # Detect new residue if PDB resnum changed
+                    pdb_this_resnum = a[22:26]
+                    if (pdb_resnum is not None
+                            and pdb_this_resnum != pdb_resnum):
+                        seqid += 1
+                    pdb_resnum = pdb_this_resnum
+                    element = a[76:78].strip() or ihm.unknown
+                    # Very old PDBs don't have sequence where the element
+                    # should be, so ignore that; guess element as the first
+                    # character of name
+                    if a[73:76] == '1SG':
+                        element = a[13:14].strip() or ihm.unknown
+                    yield modelcif.model.Atom(
+                        asym_unit=asym, type_symbol=element,
+                        seq_id=seqid, atom_id=a[12:16].strip(),
+                        x=a[30:38].strip(), y=a[38:46].strip(),
+                        z=a[46:54].strip(),
+                        biso=a[60:66].strip(),
+                        occupancy=a[54:60].strip())
+        return MyModel
+
+    def get_scores(self, modeller_software, modpipe_software):
+        tsvmod_method = self.remarks.get('TSVMOD METHOD')
+        tsvmod_rmsd = self.remarks.get('TSVMOD RMSD')
+        tsvmod_no35 = self.remarks.get('TSVMOD NO35')
+        ga341 = self.remarks.get('GA341 SCORE',
+                                 self.remarks.get('MODEL SCORE'))
+        zdope = self.remarks.get('zDOPE SCORE',
+                                 self.remarks.get('ZDOPE SCORE'))
+        mpqs = self.remarks.get('MPQS',
+                                self.remarks.get('MODPIPE QUALITY SCORE'))
+        if not mpqs:
+            return
+
+        class GA341(modelcif.qa_metric.Global,
+                    modelcif.qa_metric.NormalizedScore):
+            """GA341 fold reliability score"""
+            software = modeller_software
+
+        class MPQS(modelcif.qa_metric.Global, MPQSMetricType):
+            """ModPipe Quality Score"""
+            software = modpipe_software
+
+        class zDOPE(modelcif.qa_metric.Global, modelcif.qa_metric.ZScore):
+            """Normalized DOPE"""
+            software = modeller_software
+
+        yield GA341(ga341)
+        yield MPQS(mpqs)
+        yield zDOPE(zdope)
+
+        if tsvmod_rmsd:
+            class TSVModRMSD(modelcif.qa_metric.Global,
+                             modelcif.qa_metric.Distance):
+                __doc__ = "TSVMod predicted RMSD (%s)" % tsvmod_method
+                name = "TSVMod RMSD"
+                software = None
+
+            class TSVModNO35(modelcif.qa_metric.Global,
+                             modelcif.qa_metric.NormalizedScore):
+                __doc__ = ("TSVMod predicted native overlap (%s)"
+                           % tsvmod_method)
+                name = "TSVMod NO35"
+                software = None
+
+            yield TSVModRMSD(tsvmod_rmsd)
+            yield TSVModNO35(tsvmod_no35)
 
 
 def read_pdb(fh, repo):
@@ -809,12 +442,14 @@ ModBase).
     else:
         with open(args.pdb) as fh:
             s = read_pdb(fh, r)
-    if args.mmcif.endswith('.bcif'):
-        mode, writer = "wb", ihm.format_bcif.BinaryCifWriter
-    else:
-        mode, writer = "w", ihm.format.CifWriter
+    system = s.get_system(args.align)
+
     if args.mmcif == '-':
-        s.write_mmcif(writer(sys.stdout), args.align)
+        modelcif.dumper.write(sys.stdout, [system])
     else:
+        if args.mmcif.endswith('.bcif'):
+            mode, fmt = "wb", "BCIF"
+        else:
+            mode, fmt = "w", "mmCIF"
         with open(args.mmcif, mode) as fh:
-            s.write_mmcif(writer(fh), args.align)
+            modelcif.dumper.write(fh, [system], format=fmt)
