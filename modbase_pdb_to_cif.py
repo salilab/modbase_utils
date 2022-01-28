@@ -219,7 +219,7 @@ class Structure:
                 resnum = this_resnum
 
     def get_system(self, align):
-        """Create and return an modelcif.System object"""
+        """Create and return a modelcif.System object"""
         if align:
             align = Alignment(align)
         tgt_primary = [three_to_one[x] for x in self.get_sequence3()]
