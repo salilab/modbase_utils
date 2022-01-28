@@ -375,6 +375,11 @@ class Structure:
         if not mpqs:
             return
 
+        class GA341(modelcif.qa_metric.Global,
+                    modelcif.qa_metric.NormalizedScore):
+            """GA341 fold reliability score"""
+            software = modeller_software
+
         class MPQS(modelcif.qa_metric.Global, MPQSMetricType):
             """ModPipe Quality Score"""
             software = modpipe_software
@@ -383,6 +388,7 @@ class Structure:
             """Normalized DOPE"""
             software = modeller_software
 
+        yield GA341(ga341)
         yield MPQS(mpqs)
         yield zDOPE(zdope)
 

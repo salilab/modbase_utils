@@ -5364,11 +5364,12 @@ _ma_qa_metric.type
 _ma_qa_metric.mode
 _ma_qa_metric.type_other_details
 _ma_qa_metric.software_group_id
-1 MPQS 'ModPipe Quality Score' other global
+1 GA341 'GA341 fold reliability score' 'normalized score' global . 2
+2 MPQS 'ModPipe Quality Score' other global
 'composite score, values >1.1 are considered reliable' 1
-2 zDOPE 'Normalized DOPE' zscore global . 2
-3 'TSVMod RMSD' 'TSVMod predicted RMSD (MSALL)' distance global . .
-4 'TSVMod NO35' 'TSVMod predicted native overlap (MSALL)' 'normalized score'
+3 zDOPE 'Normalized DOPE' zscore global . 2
+4 'TSVMod RMSD' 'TSVMod predicted RMSD (MSALL)' distance global . .
+5 'TSVMod NO35' 'TSVMod predicted native overlap (MSALL)' 'normalized score'
 global . .
 #
 #
@@ -5377,8 +5378,9 @@ _ma_qa_metric_global.ordinal_id
 _ma_qa_metric_global.model_id
 _ma_qa_metric_global.metric_id
 _ma_qa_metric_global.metric_value
-1 1 1 0.853452
-2 1 2 0.31
-3 1 3 12.996
-4 1 4 0.143
+1 1 1 0.82
+2 1 2 0.853452
+3 1 3 0.31
+4 1 4 12.996
+5 1 5 0.143
 #
