@@ -4,9 +4,7 @@ import re
 import os
 import sys
 import collections
-import operator
 import gzip
-import itertools
 import ihm.reader
 import ihm.citations
 import modelcif
@@ -16,6 +14,7 @@ import modelcif.alignment
 import modelcif.reference
 from modelcif.alignment import ShorterSequenceIdentity as SequenceIdentity
 import modelcif.protocol
+
 
 class RefSeq(modelcif.reference.TargetReference):
     """RefSeq"""
@@ -273,7 +272,7 @@ class Structure:
                 transformation=modelcif.Transformation.identity(),
                 references=[modelcif.reference.PDB(template_pdb)])
         if align and align.template.primary == tgt_primary:
-            target_e = template_e 
+            target_e = template_e
             target_e.description = "Target and template"
         else:
             target_e = modelcif.Entity(tgt_primary, description="Target")
@@ -344,21 +343,23 @@ class Structure:
                 for a in atoms:
                     # Detect new residue if PDB resnum changed
                     pdb_this_resnum = a[22:26]
-                    if pdb_resnum is not None and pdb_this_resnum != pdb_resnum:
+                    if (pdb_resnum is not None
+                            and pdb_this_resnum != pdb_resnum):
                         seqid += 1
                     pdb_resnum = pdb_this_resnum
                     element = a[76:78].strip() or ihm.unknown
-                    # Very old PDBs don't have sequence where the element should
-                    # be, so ignore that; guess element as the first character
-                    # of name
+                    # Very old PDBs don't have sequence where the element
+                    # should be, so ignore that; guess element as the first
+                    # character of name
                     if a[73:76] == '1SG':
                         element = a[13:14].strip() or ihm.unknown
-                    yield modelcif.model.Atom(asym_unit=asym, type_symbol=element,
-                                        seq_id=seqid, atom_id=a[12:16].strip(),
-                                        x=a[30:38].strip(), y=a[38:46].strip(),
-                                        z=a[46:54].strip(),
-                                        biso=a[60:66].strip(),
-                                        occupancy=a[54:60].strip())
+                    yield modelcif.model.Atom(
+                        asym_unit=asym, type_symbol=element,
+                        seq_id=seqid, atom_id=a[12:16].strip(),
+                        x=a[30:38].strip(), y=a[38:46].strip(),
+                        z=a[46:54].strip(),
+                        biso=a[60:66].strip(),
+                        occupancy=a[54:60].strip())
         return MyModel
 
     def get_scores(self, modeller_software, modpipe_software):
@@ -373,6 +374,7 @@ class Structure:
                                 self.remarks.get('MODPIPE QUALITY SCORE'))
         if not mpqs:
             return
+
         class MPQS(modelcif.qa_metric.Global, MPQSMetricType):
             """ModPipe Quality Score"""
             software = modpipe_software
