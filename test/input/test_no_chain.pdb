@@ -21,7 +21,7 @@ REMARK 220 TEMPLATE PDB:                3icq
 REMARK 220 TEMPLATE CHAIN:              T                             
 REMARK 220 TARGET LENGTH:               1                             
 REMARK 220 TARGET BEGIN:                9                             
-REMARK 220 TARGET END:                  9                             
+REMARK 220 TARGET END:                  10                            
 REMARK 220 TEMPLATE BEGIN:              401                           
 REMARK 220 TEMPLATE END:                835                           
 REMARK 220 MODPIPE RUN:                 MW-update_D9975               
@@ -49,3 +49,10 @@ ATOM      6  OE1 GLU     9       4.239  28.958 -23.221  1.00 77.44           O
 ATOM      7  OE2 GLU     9       4.543  30.643 -21.801  1.00 77.44           O
 ATOM      8  C   GLU     9       3.913  24.679 -20.823  1.00 77.44           C
 ATOM      9  O   GLU     9       2.695  24.664 -20.996  1.00 77.44           O
+ATOM     10  N   THR    10       4.681  23.587 -20.989  1.00 99.59           N
+ATOM     11  CA  THR    10       4.114  22.350 -21.432  1.00 99.59           C
+ATOM     12  CB  THR    10       5.149  21.289 -21.688  1.00 99.59           C
+ATOM     13  OG1 THR    10       4.531  20.137 -22.243  1.00 99.59           O
+ATOM     14  CG2 THR    10       5.868  20.931 -20.374  1.00 99.59           C
+ATOM     15  C   THR    10       3.151  21.826 -20.414  1.00 99.59           C
+ATOM     16  O   THR    10       2.048  21.407 -20.759  1.00 99.59           O

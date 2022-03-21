@@ -268,6 +268,7 @@ class Structure:
                 template_chain, template_pdb)
             template = modelcif.Template(
                 entity=template_e, asym_id=tmpasym, model_num=1,
+                strand_id=template_chain,
                 name="Template structure",
                 transformation=modelcif.Transformation.identity(),
                 references=[modelcif.reference.PDB(template_pdb)])
