@@ -333,7 +333,8 @@ class Structure:
             cls = refmap.get(db.name)
             if cls:
                 yield cls(code=db.code, accession=db.accession,
-                          align_begin=tgtbeg, align_end=tgtend)
+                          align_begin=tgtbeg, align_end=tgtend,
+                          isoform=ihm.unknown)
 
     def get_model_class(self, asym, atoms):
         class MyModel(modelcif.model.HomologyModel):
