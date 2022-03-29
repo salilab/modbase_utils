@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6395096.svg)](https://doi.org/10.5281/zenodo.6395096)
 [![Build Status](https://github.com/salilab/modbase_utils/workflows/build/badge.svg)](https://github.com/salilab/modbase_utils/actions?query=workflow%3Abuild)
 
 This repository contains utilities for interacting with the
