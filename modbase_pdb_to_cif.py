@@ -16,6 +16,9 @@ from modelcif.alignment import ShorterSequenceIdentity as SequenceIdentity
 import modelcif.protocol
 
 
+__version__ = "0.1"
+
+
 class RefSeq(modelcif.reference.TargetReference):
     """RefSeq"""
 
@@ -252,6 +255,13 @@ class Structure:
             citation=ihm.citations.modeller,
             description='Comparative modeling by satisfaction of '
                         'spatial restraints')
+        this_software = modelcif.Software(
+            name='modbase_pdb_to_cif.py', classification="format conversion",
+            location='https://github.com/salilab/modbase_utils',
+            version=__version__,
+            description="Conversion of ModBase PDB and alignment files "
+                        "to mmCIF format")
+        s.software.extend((modpipe_software, modeller_software, this_software))
 
         tgtbeg = int(self.remarks['TARGET BEGIN'])
         tgtend = int(self.remarks['TARGET END'])
