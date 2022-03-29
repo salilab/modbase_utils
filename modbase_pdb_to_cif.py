@@ -236,7 +236,7 @@ class Structure:
             authors=['Pieper U', 'Webb BM', 'Dong GQ', 'Schneidman-Duhovny D',
                      'Fan H', 'Kim SJ', 'Khuri N', 'Spill YG', 'Weinkam P',
                      'Hammel M', 'Tainer JA', 'Nilges M', 'Sali A'],
-            doi='10.1093/nar/gkt1144')
+            doi='10.1093/nar/gkt1144', is_primary=True)
         s.citations.append(c)
 
         s.authors.extend(('Pieper U', 'Webb B', 'Narayanan E', 'Sali A'))

@@ -21,7 +21,7 @@ _citation.page_last
 _citation.year
 _citation.pdbx_database_id_PubMed
 _citation.pdbx_database_id_DOI
-1
+primary
 'ModBase, a database of annotated comparative protein structure models and associated resources'
 'Nucleic Acids Res' 42 D336 D346 2014 24271400 10.1093/nar/gkt1144
 2 'Comparative protein modelling by satisfaction of spatial restraints.'
@@ -32,19 +32,19 @@ loop_
 _citation_author.citation_id
 _citation_author.name
 _citation_author.ordinal
-1 'Pieper U' 1
-1 'Webb BM' 2
-1 'Dong GQ' 3
-1 'Schneidman-Duhovny D' 4
-1 'Fan H' 5
-1 'Kim SJ' 6
-1 'Khuri N' 7
-1 'Spill YG' 8
-1 'Weinkam P' 9
-1 'Hammel M' 10
-1 'Tainer JA' 11
-1 'Nilges M' 12
-1 'Sali A' 13
+primary 'Pieper U' 1
+primary 'Webb BM' 2
+primary 'Dong GQ' 3
+primary 'Schneidman-Duhovny D' 4
+primary 'Fan H' 5
+primary 'Kim SJ' 6
+primary 'Khuri N' 7
+primary 'Spill YG' 8
+primary 'Weinkam P' 9
+primary 'Hammel M' 10
+primary 'Tainer JA' 11
+primary 'Nilges M' 12
+primary 'Sali A' 13
 2 'Sali A' 14
 2 'Blundell TL' 15
 #
