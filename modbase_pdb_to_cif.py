@@ -111,11 +111,11 @@ class _PolySeqSchemeHandler(ihm.reader.Handler):
     def __init__(self, m):
         self.m = m
 
-    def __call__(self, asym_id, seq_id, pdb_seq_num, pdb_ins_code,
+    def __call__(self, asym_id, entity_id, seq_id, pdb_seq_num, pdb_ins_code,
                  pdb_strand_id):
         mk = (pdb_strand_id, pdb_seq_num, pdb_ins_code)
         if mk in self.m:
-            self.m[mk] = (asym_id, seq_id)
+            self.m[mk] = (asym_id, entity_id, seq_id)
 
 
 class Repository:
@@ -131,13 +131,13 @@ class Repository:
 
     def map_ranges(self, fh, ranges):
         """Map a list of PDB (chain, resnum_start, resnum_end) tuples to the
-           corresponding mmCIF (asym_id, seq_id_start, seq_id_end) values
-           and return. This is done by reading the pdbx_poly_seq_scheme
+           corresponding mmCIF (asym_id, entity_id, seq_id_start, seq_id_end)
+           values and return. This is done by reading the pdbx_poly_seq_scheme
            table in the given mmCIF file."""
         m = collections.OrderedDict()
         for r in ranges:
             # If we can't find the PDB numbering, return it unchanged
-            m[r] = (r[0], r[1])
+            m[r] = (r[0], None, r[1])
         h = _PolySeqSchemeHandler(m)
         r = ihm.format.CifReader(fh, {'_pdbx_poly_seq_scheme': h})
         r.read_file()
@@ -195,7 +195,7 @@ class Structure:
 
     def get_mmcif_template_info(self, pdb_beg, pdb_end, pdb_chain, pdb_code):
         """Given PDB ("author-provided") template information, map to
-           mmCIF seq_id range and asym_id, and return."""
+           mmCIF seq_id range, asym_id and entity_id, and return."""
         # Split TEMPLATE BEGIN/END records into residue number and
         # insertion code
         pdb_beg, pdb_beg_ins = split_resnum(pdb_beg)
@@ -210,7 +210,10 @@ class Structure:
             cif_ranges = [cif_ranges[0], cif_ranges[0]]
         # asym_id of start and end should be the same
         assert(cif_ranges[0][0] == cif_ranges[1][0])
-        return(int(cif_ranges[0][1]), int(cif_ranges[1][1]), cif_ranges[0][0])
+        # If either end of the range has an entity_id, provide it
+        entity_id = cif_ranges[0][1] or cif_ranges[1][1]
+        return(int(cif_ranges[0][2]), int(cif_ranges[1][2]),
+               cif_ranges[0][0], entity_id)
 
     def get_sequence3(self):
         """Get PDB sequence as a sequence of 3-letter residue names"""
@@ -273,12 +276,12 @@ class Structure:
             # chain ID. These have all since been remediated, almost certainly
             # to use chain ID 'A'.
             template_chain = self.remarks['TEMPLATE CHAIN'] or 'A'
-            tmpbeg, tmpend, tmpasym = self.get_mmcif_template_info(
+            tmpbeg, tmpend, tmpasym, tmpentity = self.get_mmcif_template_info(
                 self.remarks['TEMPLATE BEGIN'], self.remarks['TEMPLATE END'],
                 template_chain, template_pdb)
             template = modelcif.Template(
                 entity=template_e, asym_id=tmpasym, model_num=1,
-                strand_id=template_chain,
+                strand_id=template_chain, entity_id=tmpentity,
                 name="Template structure",
                 transformation=modelcif.Transformation.identity(),
                 references=[modelcif.reference.PDB(template_pdb)])
