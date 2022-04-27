@@ -1,4 +1,5 @@
 - Update ChangeLog.rst with the release number
 - Update release number in modbase_pdb_to_cif.py
+- Make sure all tests pass (update known-good outputs with version number)
 - Commit, tag, and push
 - Make release on GitHub
