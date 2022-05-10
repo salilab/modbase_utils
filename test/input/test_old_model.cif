@@ -6,9 +6,9 @@ _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of'
 _exptl.entry_id model_9abae378d2aa2c1a5b21c65c98564dc0
 _exptl.method 'THEORETICAL MODEL'
-_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/0975b79/mmcif_ma.dic
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/a24fcfa/base/mmcif_ma-core.dic
 _audit_conform.dict_name mmcif_ma.dic
-_audit_conform.dict_version 1.3.8
+_audit_conform.dict_version 1.4.0
 _database_2.database_code 9abae378d2aa2c1a5b21c65c98564dc0
 _database_2.database_id MODBASE
 #
@@ -158,6 +158,7 @@ _ma_data.content_type_other_details
 2 'Target and template' target .
 3 'Target Template Alignment' 'target-template alignment' .
 4 'Target Structure' 'model coordinates' .
+5 'ModPipe sequence and structure database' 'reference database' .
 #
 #
 loop_
@@ -165,11 +166,22 @@ _ma_data_group.ordinal_id
 _ma_data_group.group_id
 _ma_data_group.data_id
 1 1 2
-2 2 3
-3 2 2
-4 2 1
-5 3 4
-6 4 3
+2 1 5
+3 2 3
+4 2 2
+5 2 1
+6 3 4
+7 4 3
+#
+#
+loop_
+_ma_data_ref_db.data_id
+_ma_data_ref_db.name
+_ma_data_ref_db.location_url
+_ma_data_ref_db.version
+_ma_data_ref_db.release_date
+5 'ModPipe sequence and structure database'
+https://salilab.org/modpipe/doc/databases.html . .
 #
 #
 loop_
