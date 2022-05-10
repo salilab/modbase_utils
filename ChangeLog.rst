@@ -1,3 +1,8 @@
+0.3 - 2022-05-10
+================
+ - The ModPipe databases (PDB95, UniProt90, profiles) are now linked from
+   the modeling protocol in the output mmCIF file.
+
 0.2 - 2022-04-15
 ================
  - Sequence information for templates is now only written to template-specific

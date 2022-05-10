@@ -65,7 +65,7 @@ program https://salilab.org/modpipe/ .
 'Comparative modeling by satisfaction of spatial restraints' SVN program
 https://salilab.org/modeller/ 2
 3 modbase_pdb_to_cif.py 'format conversion'
-'Conversion of ModBase PDB and alignment files to mmCIF format' 0.2 program
+'Conversion of ModBase PDB and alignment files to mmCIF format' 0.3 program
 https://github.com/salilab/modbase_utils .
 #
 #
