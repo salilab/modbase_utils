@@ -10,14 +10,9 @@ import ihm.dictionary
 import urllib.request
 
 with urllib.request.urlopen(
-        'http://mmcif.wwpdb.org/dictionaries/ascii/mmcif_pdbx_v50.dic') as fh:
-    pdbx = ihm.dictionary.read(fh)
-with urllib.request.urlopen(
-        'https://raw.githubusercontent.com/ihmwg/MA-dictionary/'
-        'master/mmcif_ma.dic') as fh:
-    ma = ihm.dictionary.read(fh)
-
-pdbx_ma = pdbx + ma
+        'https://raw.githubusercontent.com/ihmwg/ModelCIF/master/'
+        'dist/mmcif_ma.dic') as fh:
+    pdbx_ma = ihm.dictionary.read(fh)
 
 for to_validate in ('output.cif', 'output_with_align.cif',
                     'test_no_chain.cif', 'test_old_model.cif'):
