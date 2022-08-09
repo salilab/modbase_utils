@@ -328,7 +328,7 @@ class Structure:
         protocol = modelcif.protocol.Protocol()
         mth = " %s" % align.template.method if align else ''
         modpipe_db = modelcif.ReferenceDatabase(
-            name='ModPipe',
+            name='ModPipe sequence and structure database',
             url='https://salilab.org/modpipe/doc/databases.html')
         protocol.steps.append(modelcif.protocol.TemplateSearchStep(
             name='ModPipe%s' % mth, software=modpipe_software,

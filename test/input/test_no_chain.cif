@@ -175,7 +175,7 @@ _ma_data.content_type_other_details
 1 Target target .
 2 'Target Template Alignment' 'target-template alignment' .
 3 'Target Structure' 'model coordinates' .
-4 ModPipe 'reference database' .
+4 'ModPipe sequence and structure database' 'reference database' .
 #
 #
 loop_
@@ -196,7 +196,8 @@ _ma_data_ref_db.name
 _ma_data_ref_db.location_url
 _ma_data_ref_db.version
 _ma_data_ref_db.release_date
-4 ModPipe https://salilab.org/modpipe/doc/databases.html . .
+4 'ModPipe sequence and structure database'
+https://salilab.org/modpipe/doc/databases.html . .
 #
 #
 loop_
