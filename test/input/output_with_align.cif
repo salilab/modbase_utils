@@ -6,9 +6,9 @@ _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of S54091 hypothetical protein YPR070w - yeast (Saccha'
 _exptl.entry_id model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _exptl.method 'THEORETICAL MODEL'
-_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/a24fcfa/base/mmcif_ma-core.dic
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/557bda7/base/mmcif_ma-core.dic
 _audit_conform.dict_name mmcif_ma.dic
-_audit_conform.dict_version 1.4.0
+_audit_conform.dict_version 1.4.1
 _database_2.database_code 66b8fbc891f519c1ba8d8ad2e62c6caa
 _database_2.database_id MODBASE
 #
@@ -93,29 +93,30 @@ _chem_comp.type
 _chem_comp.name
 _chem_comp.formula
 _chem_comp.formula_weight
-ALA 'L-peptide linking' ALANINE 'C3 H7 N O2' 89.094
-ARG 'L-peptide linking' ARGININE 'C6 H15 N4 O2 1' 175.212
-ASN 'L-peptide linking' ASPARAGINE 'C4 H8 N2 O3' 132.119
-ASP 'L-peptide linking' 'ASPARTIC ACID' 'C4 H7 N O4' 133.103
-ASX 'L-peptide linking' 'ASP/ASN AMBIGUOUS' 'C4 H6 N O2 X2' 100.097
-CYS 'L-peptide linking' CYSTEINE 'C3 H7 N O2 S' 121.154
-GLN 'L-peptide linking' GLUTAMINE 'C5 H10 N2 O3' 146.146
-GLU 'L-peptide linking' 'GLUTAMIC ACID' 'C5 H9 N O4' 147.130
-GLX 'L-peptide linking' 'GLU/GLN AMBIGUOUS' 'C5 H8 N O2 X2' 114.124
-GLY 'peptide linking' GLYCINE 'C2 H5 N O2' 75.067
-HIS 'L-peptide linking' HISTIDINE 'C6 H10 N3 O2 1' 156.165
-ILE 'L-peptide linking' ISOLEUCINE 'C6 H13 N O2' 131.175
-LEU 'L-peptide linking' LEUCINE 'C6 H13 N O2' 131.175
-LYS 'L-peptide linking' LYSINE 'C6 H15 N2 O2 1' 147.198
-MET 'L-peptide linking' METHIONINE 'C5 H11 N O2 S' 149.208
-PHE 'L-peptide linking' PHENYLALANINE 'C9 H11 N O2' 165.192
-PRO 'L-peptide linking' PROLINE 'C5 H9 N O2' 115.132
-SER 'L-peptide linking' SERINE 'C3 H7 N O3' 105.093
-THR 'L-peptide linking' THREONINE 'C4 H9 N O3' 119.120
-TRP 'L-peptide linking' TRYPTOPHAN 'C11 H12 N2 O2' 204.229
-TYR 'L-peptide linking' TYROSINE 'C9 H11 N O3' 181.191
-UNK 'L-peptide linking' UNKNOWN 'C4 H9 N O2' 103.121
-VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148
+_chem_comp.ma_provenance
+ALA 'L-peptide linking' ALANINE 'C3 H7 N O2' 89.094 'CCD Core'
+ARG 'L-peptide linking' ARGININE 'C6 H15 N4 O2 1' 175.212 'CCD Core'
+ASN 'L-peptide linking' ASPARAGINE 'C4 H8 N2 O3' 132.119 'CCD Core'
+ASP 'L-peptide linking' 'ASPARTIC ACID' 'C4 H7 N O4' 133.103 'CCD Core'
+ASX 'L-peptide linking' 'ASP/ASN AMBIGUOUS' 'C4 H6 N O2 X2' 100.097 'CCD Core'
+CYS 'L-peptide linking' CYSTEINE 'C3 H7 N O2 S' 121.154 'CCD Core'
+GLN 'L-peptide linking' GLUTAMINE 'C5 H10 N2 O3' 146.146 'CCD Core'
+GLU 'L-peptide linking' 'GLUTAMIC ACID' 'C5 H9 N O4' 147.130 'CCD Core'
+GLX 'L-peptide linking' 'GLU/GLN AMBIGUOUS' 'C5 H8 N O2 X2' 114.124 'CCD Core'
+GLY 'peptide linking' GLYCINE 'C2 H5 N O2' 75.067 'CCD Core'
+HIS 'L-peptide linking' HISTIDINE 'C6 H10 N3 O2 1' 156.165 'CCD Core'
+ILE 'L-peptide linking' ISOLEUCINE 'C6 H13 N O2' 131.175 'CCD Core'
+LEU 'L-peptide linking' LEUCINE 'C6 H13 N O2' 131.175 'CCD Core'
+LYS 'L-peptide linking' LYSINE 'C6 H15 N2 O2 1' 147.198 'CCD Core'
+MET 'L-peptide linking' METHIONINE 'C5 H11 N O2 S' 149.208 'CCD Core'
+PHE 'L-peptide linking' PHENYLALANINE 'C9 H11 N O2' 165.192 'CCD Core'
+PRO 'L-peptide linking' PROLINE 'C5 H9 N O2' 115.132 'CCD Core'
+SER 'L-peptide linking' SERINE 'C3 H7 N O3' 105.093 'CCD Core'
+THR 'L-peptide linking' THREONINE 'C4 H9 N O3' 119.120 'CCD Core'
+TRP 'L-peptide linking' TRYPTOPHAN 'C11 H12 N2 O2' 204.229 'CCD Core'
+TYR 'L-peptide linking' TYROSINE 'C9 H11 N O3' 181.191 'CCD Core'
+UNK 'L-peptide linking' UNKNOWN 'C4 H9 N O2' 103.121 'CCD Core'
+VAL 'L-peptide linking' VALINE 'C5 H11 N O2' 117.148 'CCD Core'
 #
 #
 loop_
@@ -1140,23 +1141,6 @@ A 1 'Model subunit'
 #
 #
 loop_
-_ma_struct_assembly.ordinal_id
-_ma_struct_assembly.assembly_id
-_ma_struct_assembly.entity_id
-_ma_struct_assembly.asym_id
-_ma_struct_assembly.seq_id_begin
-_ma_struct_assembly.seq_id_end
-1 1 1 A 1 444
-#
-#
-loop_
-_ma_struct_assembly_details.assembly_id
-_ma_struct_assembly_details.assembly_name
-_ma_struct_assembly_details.assembly_description
-1 'Modeled assembly' .
-#
-#
-loop_
 _ma_template_trans_matrix.id
 _ma_template_trans_matrix.rot_matrix[1][1]
 _ma_template_trans_matrix.rot_matrix[2][1]
@@ -1295,11 +1279,10 @@ _ma_model_list.model_id
 _ma_model_list.model_group_id
 _ma_model_list.model_name
 _ma_model_list.model_group_name
-_ma_model_list.assembly_id
 _ma_model_list.data_id
 _ma_model_list.model_type
 _ma_model_list.model_type_other_details
-1 1 1 'Target Structure' 'All models' 1 4 'Homology model' .
+1 1 1 'Target Structure' 'All models' 4 'Homology model' .
 #
 #
 loop_
