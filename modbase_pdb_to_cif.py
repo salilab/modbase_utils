@@ -209,11 +209,11 @@ class Structure:
         if len(cif_ranges) == 1:
             cif_ranges = [cif_ranges[0], cif_ranges[0]]
         # asym_id of start and end should be the same
-        assert(cif_ranges[0][0] == cif_ranges[1][0])
+        assert cif_ranges[0][0] == cif_ranges[1][0]
         # If either end of the range has an entity_id, provide it
         entity_id = cif_ranges[0][1] or cif_ranges[1][1]
-        return(int(cif_ranges[0][2]), int(cif_ranges[1][2]),
-               cif_ranges[0][0], entity_id)
+        return (int(cif_ranges[0][2]), int(cif_ranges[1][2]),
+                cif_ranges[0][0], entity_id)
 
     def get_sequence3(self):
         """Get PDB sequence as a sequence of 3-letter residue names"""
