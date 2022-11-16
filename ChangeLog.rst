@@ -1,3 +1,9 @@
+0.4 - 2022-11-16
+================
+ - Author names are now PDB style ("Lastname, A.B.") rather than
+   PubMed style ("Lastname AB").
+ - Old ModBase models containing UNK residues are now handled correctly.
+
 0.3 - 2022-05-10
 ================
  - The ModPipe databases (PDB95, UniProt90, profiles) are now linked from

@@ -16,7 +16,7 @@ from modelcif.alignment import ShorterSequenceIdentity as SequenceIdentity
 import modelcif.protocol
 
 
-__version__ = "0.3"
+__version__ = "0.4"
 
 
 class RefSeq(modelcif.reference.TargetReference):
