@@ -244,13 +244,15 @@ class Structure:
                   "structure models and associated resources",
             journal="Nucleic Acids Res", volume=42,
             page_range=('D336', 'D346'), year=2014, pmid=24271400,
-            authors=['Pieper U', 'Webb BM', 'Dong GQ', 'Schneidman-Duhovny D',
-                     'Fan H', 'Kim SJ', 'Khuri N', 'Spill YG', 'Weinkam P',
-                     'Hammel M', 'Tainer JA', 'Nilges M', 'Sali A'],
+            authors=['Pieper, U.', 'Webb, B.M.', 'Dong, G.Q.',
+                     'Schneidman-Duhovny, D.', 'Fan, H.', 'Kim, S.J.',
+                     'Khuri, N.', 'Spill, Y.G.', 'Weinkam, P.', 'Hammel, M.',
+                     'Tainer, J.A.', 'Nilges, M.', 'Sali, A.'],
             doi='10.1093/nar/gkt1144', is_primary=True)
         s.citations.append(c)
 
-        s.authors.extend(('Pieper U', 'Webb B', 'Narayanan E', 'Sali A'))
+        s.authors.extend(('Pieper, U.', 'Webb, B.', 'Narayanan, E.',
+                          'Sali, A.'))
         modpipe_software = modelcif.Software(
             name='ModPipe', classification='comparative modeling',
             location='https://salilab.org/modpipe/', type='program',

@@ -33,21 +33,21 @@ loop_
 _citation_author.citation_id
 _citation_author.name
 _citation_author.ordinal
-primary 'Pieper U' 1
-primary 'Webb BM' 2
-primary 'Dong GQ' 3
-primary 'Schneidman-Duhovny D' 4
-primary 'Fan H' 5
-primary 'Kim SJ' 6
-primary 'Khuri N' 7
-primary 'Spill YG' 8
-primary 'Weinkam P' 9
-primary 'Hammel M' 10
-primary 'Tainer JA' 11
-primary 'Nilges M' 12
-primary 'Sali A' 13
-2 'Sali A' 14
-2 'Blundell TL' 15
+primary 'Pieper, U.' 1
+primary 'Webb, B.M.' 2
+primary 'Dong, G.Q.' 3
+primary 'Schneidman-Duhovny, D.' 4
+primary 'Fan, H.' 5
+primary 'Kim, S.J.' 6
+primary 'Khuri, N.' 7
+primary 'Spill, Y.G.' 8
+primary 'Weinkam, P.' 9
+primary 'Hammel, M.' 10
+primary 'Tainer, J.A.' 11
+primary 'Nilges, M.' 12
+primary 'Sali, A.' 13
+2 'Sali, A.' 14
+2 'Blundell, T.L.' 15
 #
 #
 loop_
@@ -81,10 +81,10 @@ _ma_software_group.parameter_group_id
 loop_
 _audit_author.name
 _audit_author.pdbx_ordinal
-'Pieper U' 1
-'Webb B' 2
-'Narayanan E' 3
-'Sali A' 4
+'Pieper, U.' 1
+'Webb, B.' 2
+'Narayanan, E.' 3
+'Sali, A.' 4
 #
 #
 loop_
