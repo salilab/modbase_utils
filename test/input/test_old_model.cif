@@ -4,11 +4,9 @@ _struct.entry_id model_9abae378d2aa2c1a5b21c65c98564dc0
 _struct.pdbx_model_details .
 _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of'
-_exptl.entry_id model_9abae378d2aa2c1a5b21c65c98564dc0
-_exptl.method 'THEORETICAL MODEL'
-_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/557bda7/base/mmcif_ma-core.dic
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/330c8af/base/mmcif_ma-core.dic
 _audit_conform.dict_name mmcif_ma.dic
-_audit_conform.dict_version 1.4.1
+_audit_conform.dict_version 1.4.4
 _database_2.database_code 9abae378d2aa2c1a5b21c65c98564dc0
 _database_2.database_id MODBASE
 #
@@ -252,7 +250,8 @@ _ma_template_ref_db_details.template_id
 _ma_template_ref_db_details.db_name
 _ma_template_ref_db_details.db_name_other_details
 _ma_template_ref_db_details.db_accession_code
-1 PDB . 1a7s
+_ma_template_ref_db_details.db_version_date
+1 PDB . 1a7s .
 #
 #
 loop_
