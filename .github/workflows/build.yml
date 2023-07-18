@@ -20,8 +20,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install pytest flake8 modelcif
+        pip install pytest flake8 modelcif codespell
     - name: Test
       run: |
         py.test .
         flake8 .
+        codespell --skip="*.cif,*.pdb"
