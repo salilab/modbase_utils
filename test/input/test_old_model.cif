@@ -4,9 +4,9 @@ _struct.entry_id model_9abae378d2aa2c1a5b21c65c98564dc0
 _struct.pdbx_model_details .
 _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of'
-_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/330c8af/base/mmcif_ma-core.dic
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/ba728c4/base/mmcif_ma-core.dic
 _audit_conform.dict_name mmcif_ma.dic
-_audit_conform.dict_version 1.4.4
+_audit_conform.dict_version 1.4.5
 _database_2.database_code 9abae378d2aa2c1a5b21c65c98564dc0
 _database_2.database_id MODBASE
 #
@@ -340,24 +340,25 @@ _atom_site.Cartn_z
 _atom_site.occupancy
 _atom_site.label_entity_id
 _atom_site.auth_asym_id
+_atom_site.auth_comp_id
 _atom_site.B_iso_or_equiv
 _atom_site.pdbx_PDB_model_num
-ATOM 1 N N . ILE 1 21 ? A 11.904 27.698 41.406 1.00 1 A 90.95 1
-ATOM 2 C CA . ILE 1 21 ? A 12.594 27.129 42.583 1.00 1 A 90.95 1
-ATOM 3 C CB . ILE 1 21 ? A 13.986 26.675 42.240 1.00 1 A 90.95 1
-ATOM 4 C CG2 . ILE 1 21 ? A 14.748 26.439 43.555 1.00 1 A 90.95 1
-ATOM 5 C CG1 . ILE 1 21 ? A 13.947 25.437 41.324 1.00 1 A 90.95 1
-ATOM 6 C CD1 . ILE 1 21 ? A 13.424 25.713 39.918 1.00 1 A 90.95 1
-ATOM 7 C C . ILE 1 21 ? A 12.630 28.091 43.720 1.00 1 A 90.95 1
-ATOM 8 O O . ILE 1 21 ? A 12.780 29.300 43.543 1.00 1 A 90.95 1
-ATOM 9 N N . ILE 2 22 ? A 12.488 27.536 44.937 1.00 1 A 89.33 1
-ATOM 10 C CA . ILE 2 22 ? A 12.408 28.311 46.134 1.00 1 A 89.33 1
-ATOM 11 C CB . ILE 2 22 ? A 11.296 27.873 47.041 1.00 1 A 89.33 1
-ATOM 12 C CG2 . ILE 2 22 ? A 11.311 28.794 48.273 1.00 1 A 89.33 1
-ATOM 13 C CG1 . ILE 2 22 ? A 9.949 27.848 46.301 1.00 1 A 89.33 1
-ATOM 14 C CD1 . ILE 2 22 ? A 9.816 26.711 45.287 1.00 1 A 89.33 1
-ATOM 15 C C . ILE 2 22 ? A 13.648 28.032 46.915 1.00 1 A 89.33 1
-ATOM 16 O O . ILE 2 22 ? A 14.115 26.895 46.964 1.00 1 A 89.33 1
+ATOM 1 N N . ILE 1 21 ? A 11.904 27.698 41.406 1.00 1 A ILE 90.95 1
+ATOM 2 C CA . ILE 1 21 ? A 12.594 27.129 42.583 1.00 1 A ILE 90.95 1
+ATOM 3 C CB . ILE 1 21 ? A 13.986 26.675 42.240 1.00 1 A ILE 90.95 1
+ATOM 4 C CG2 . ILE 1 21 ? A 14.748 26.439 43.555 1.00 1 A ILE 90.95 1
+ATOM 5 C CG1 . ILE 1 21 ? A 13.947 25.437 41.324 1.00 1 A ILE 90.95 1
+ATOM 6 C CD1 . ILE 1 21 ? A 13.424 25.713 39.918 1.00 1 A ILE 90.95 1
+ATOM 7 C C . ILE 1 21 ? A 12.630 28.091 43.720 1.00 1 A ILE 90.95 1
+ATOM 8 O O . ILE 1 21 ? A 12.780 29.300 43.543 1.00 1 A ILE 90.95 1
+ATOM 9 N N . ILE 2 22 ? A 12.488 27.536 44.937 1.00 1 A ILE 89.33 1
+ATOM 10 C CA . ILE 2 22 ? A 12.408 28.311 46.134 1.00 1 A ILE 89.33 1
+ATOM 11 C CB . ILE 2 22 ? A 11.296 27.873 47.041 1.00 1 A ILE 89.33 1
+ATOM 12 C CG2 . ILE 2 22 ? A 11.311 28.794 48.273 1.00 1 A ILE 89.33 1
+ATOM 13 C CG1 . ILE 2 22 ? A 9.949 27.848 46.301 1.00 1 A ILE 89.33 1
+ATOM 14 C CD1 . ILE 2 22 ? A 9.816 26.711 45.287 1.00 1 A ILE 89.33 1
+ATOM 15 C C . ILE 2 22 ? A 13.648 28.032 46.915 1.00 1 A ILE 89.33 1
+ATOM 16 O O . ILE 2 22 ? A 14.115 26.895 46.964 1.00 1 A ILE 89.33 1
 #
 #
 loop_
