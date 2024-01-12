@@ -1,3 +1,9 @@
+0.5 - 2024-01-12
+================
+ - New ModBase models containing multiline TITLE records and new-style
+   EXPDTA records (where Modeller version information has been moved
+   to a REMARK) are now handled correctly.
+
 0.4 - 2022-11-16
 ================
  - Author names are now PDB style ("Lastname, A.B.") rather than
