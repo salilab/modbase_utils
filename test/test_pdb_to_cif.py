@@ -72,6 +72,16 @@ class Tests(unittest.TestCase):
         self.compare_files(out, outcif)
         os.unlink(out)
 
+    def test_multi_line_and_expdta(self):
+        """Test with multiline TITLE and new-style EXPDTA record"""
+        out = 'test_multi_expdta.cif'
+        inpdb = os.path.join(INPUTDIR, 'test_multi_expdta.pdb')
+        outcif = os.path.join(INPUTDIR, 'test_multi_expdta.cif')
+        _ = subprocess.check_call([sys.executable, script, '-r', repo,
+                                   inpdb, out])
+        self.compare_files(out, outcif)
+        os.unlink(out)
+
 
 if __name__ == '__main__':
     unittest.main()

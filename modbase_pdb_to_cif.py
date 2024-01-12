@@ -182,9 +182,11 @@ class Structure:
             elif line.startswith('REMARK') and line.count(':') == 1:
                 key, val = [x.strip() for x in line[11:].split(':')]
                 self.remarks[key] = val
-            elif line.startswith('TITLE     '):
-                self.title = line[10:].strip()
-            elif line.startswith('EXPDTA    '):
+            elif line.startswith('TITLE   '):
+                txt = line[10:].rstrip()
+                self.title = self.title + txt if self.title else txt
+            elif (line.startswith('EXPDTA    ')
+                  or line.startswith('REMARK   6 PRODUCED BY MODELLER')):
                 self.expdta = line[10:].strip()
             elif line.startswith('ATOM') or line.startswith('HETATM'):
                 self.atoms.append(line)
