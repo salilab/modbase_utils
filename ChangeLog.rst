@@ -1,3 +1,10 @@
+1.0 - 2024-09-30
+================
+ - Information about the database sequence for the model (e.g. in
+   UniProt) is now provided both in the ModelCIF-specific
+   ``ma_target_ref_db_details`` table and in the more general
+   ``struct_ref`` table.
+
 0.5 - 2024-01-12
 ================
  - New ModBase models containing multiline TITLE records and new-style
