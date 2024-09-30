@@ -4,9 +4,9 @@ _struct.entry_id model_9abae378d2aa2c1a5b21c65c98564dc0
 _struct.pdbx_model_details .
 _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of'
-_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/ba728c4/base/mmcif_ma-core.dic
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/d18ba38/base/mmcif_ma-core.dic
 _audit_conform.dict_name mmcif_ma.dic
-_audit_conform.dict_version 1.4.5
+_audit_conform.dict_version 1.4.6
 _database_2.database_code 9abae378d2aa2c1a5b21c65c98564dc0
 _database_2.database_id MODBASE
 #

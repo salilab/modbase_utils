@@ -299,7 +299,8 @@ class Structure:
             target_e.description = "Target and template"
         else:
             target_e = modelcif.Entity(tgt_primary, description="Target")
-        target_e.references.extend(self.get_target_refs(tgtbeg, tgtend))
+        target_e.references.extend(self.get_target_refs(tgt_primary,
+                                                        tgtbeg, tgtend))
         chain_id = self.chain_id.strip() or 'A'
         asym = modelcif.AsymUnit(target_e, details='Model subunit',
                                  id=chain_id, auth_seq_id_map=tgtbeg-1)
@@ -352,16 +353,22 @@ class Structure:
 
         return s
 
-    def get_target_refs(self, tgtbeg, tgtend):
+    def get_target_refs(self, tgtprimary, tgtbeg, tgtend):
         refmap = {'UniProt': modelcif.reference.UniProt,
                   'RefSeq': RefSeq,
                   'PlasmoDB': PlasmoDB}
         for db in self.seqdb:
             cls = refmap.get(db.name)
             if cls:
-                yield cls(code=db.code, accession=db.accession,
-                          align_begin=tgtbeg, align_end=tgtend,
-                          isoform=ihm.unknown)
+                # We only know the modeled sequence, not the full database
+                # sequence, so pad it with gaps as necessary
+                r = cls(code=db.code, accession=db.accession,
+                        isoform=ihm.unknown,
+                        sequence="-" * (tgtbeg - 1) + "".join(tgtprimary))
+                aln = modelcif.reference.Alignment(db_begin=tgtbeg,
+                                                   db_end=tgtend)
+                r.alignments.append(aln)
+                yield r
 
     def get_model_class(self, asym, atoms):
         class MyModel(modelcif.model.HomologyModel):
