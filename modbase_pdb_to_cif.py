@@ -124,15 +124,19 @@ class _PolySeqSchemeHandler(ihm.reader.Handler):
 
 
 class Repository:
-    """Point to a directory containing a mirror of PDB in mmCIF format"""
-    def __init__(self, topdir):
-        self.topdir = topdir
+    """Point to directory/ies containing a mirror of PDB in mmCIF format"""
+    def __init__(self, topdirs):
+        self.topdirs = topdirs
 
     def open_mmcif(self, pdb_code):
         """Given a PDB code, return a file handle to the corresponding mmCIF"""
         code = pdb_code.lower()
-        fname = os.path.join(self.topdir, code[1:3], code + '.cif.gz')
-        return gzip.open(fname, 'rt', encoding='latin1')
+        for topdir in self.topdirs:
+            fname = os.path.join(topdir, code[1:3], code + '.cif.gz')
+            if os.path.exists(fname):
+                return gzip.open(fname, 'rt', encoding='latin1')
+        raise FileNotFoundError("Could not find PDB code %s in any PDB mirror"
+                                % pdb_code)
 
     def map_ranges(self, fh, ranges):
         """Map a list of PDB (chain, resnum_start, resnum_end) tuples to the
@@ -465,8 +469,10 @@ ModBase).
 """)
     a.add_argument("-a", "--align", metavar="FILE",
                    help="Input alignment file")
-    a.add_argument("-r", "--repo", default='.',
-                   help="Directory containing repository of mmCIF files")
+    a.add_argument("-r", "--repo", action="append",
+                   help="Directory containing repository of mmCIF files; "
+                        "can be given multiple times (directories will be "
+                        "searched in order)")
     a.add_argument("pdb", help="Input PDB file")
     a.add_argument("mmcif", help="Output mmCIF file")
     args = a.parse_args()
