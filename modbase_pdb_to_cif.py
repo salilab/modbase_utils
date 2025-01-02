@@ -126,7 +126,7 @@ class _PolySeqSchemeHandler(ihm.reader.Handler):
 class Repository:
     """Point to directory/ies containing a mirror of PDB in mmCIF format"""
     def __init__(self, topdirs):
-        self.topdirs = topdirs
+        self.topdirs = topdirs or []
 
     def open_mmcif(self, pdb_code):
         """Given a PDB code, return a file handle to the corresponding mmCIF"""
