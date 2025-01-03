@@ -19,6 +19,10 @@ import modelcif.protocol
 __version__ = "1.0"
 
 
+class AsymSeqRangeMismatchError(Exception):
+    pass
+
+
 class RefSeq(modelcif.reference.TargetReference):
     """RefSeq"""
 
@@ -220,7 +224,10 @@ class Structure:
         if len(cif_ranges) == 1:
             cif_ranges = [cif_ranges[0], cif_ranges[0]]
         # asym_id of start and end should be the same
-        assert cif_ranges[0][0] == cif_ranges[1][0]
+        if cif_ranges[0][0] != cif_ranges[1][0]:
+            raise AsymSeqRangeMismatchError(
+                "asym_id of start (%s) does not match end (%s)"
+                % (cif_ranges[0][0], cif_ranges[1][0]))
         # If either end of the range has an entity_id, provide it
         entity_id = cif_ranges[0][1] or cif_ranges[1][1]
         return (int(cif_ranges[0][2]), int(cif_ranges[1][2]),
@@ -289,9 +296,17 @@ class Structure:
             # chain ID. These have all since been remediated, almost certainly
             # to use chain ID 'A'.
             template_chain = self.remarks['TEMPLATE CHAIN'] or 'A'
-            tmpbeg, tmpend, tmpasym, tmpentity = self.get_mmcif_template_info(
-                self.remarks['TEMPLATE BEGIN'], self.remarks['TEMPLATE END'],
-                template_chain, template_pdb)
+            # If we can't extract information from the template mmCIF file
+            # (it doesn't exist, or the scheme table is missing/incorrect)
+            # then provide "unknown" values instead
+            try:
+                tmpbeg, tmpend, tmpasym, tmpentity = \
+                    self.get_mmcif_template_info(
+                        self.remarks['TEMPLATE BEGIN'],
+                        self.remarks['TEMPLATE END'],
+                        template_chain, template_pdb)
+            except (AsymSeqRangeMismatchError, FileNotFoundError):
+                tmpbeg = tmpend = tmpasym = tmpentity = ihm.unknown
             template = modelcif.Template(
                 entity=template_e, asym_id=tmpasym, model_num=1,
                 strand_id=template_chain, entity_id=tmpentity,
