@@ -42,6 +42,49 @@ class Tests(unittest.TestCase):
         self.compare_files(out, outaligncif)
         os.unlink(out)
 
+    def test_with_align_missing_template(self):
+        """Test modbase_pdb_to_cif with alignment but missing template"""
+        out = 'test_with_align_missing_template.cif'
+        _ = subprocess.check_call([sys.executable, script,
+                                   '-a', align, inpdb, out])
+        # Without the repo, we won't be able to find the template .cif;
+        # information on asyms and residue ranges will be missing
+        with open(out) as fh:
+            f1_contents = fh.read()
+        with open(outaligncif) as fh:
+            f2_contents = fh.read()
+        f2_contents = f2_contents.replace('polymer 1 1 A A 1 1 T',
+                                          'polymer 1 1 A ? ? 1 T')
+        f2_contents = f2_contents.replace('1 1 403 837', '1 1 ? ?')
+        self.assertEqual(f1_contents, f2_contents)
+        os.unlink(out)
+
+    def test_with_align_bad_range(self):
+        """Test modbase_pdb_to_cif with alignment and bad sequence range"""
+        out = 'test_with_align_bad_range.cif'
+        # Modify input PDB to reference a bad template sequence range
+        inpdb_bad_range = 'inpdb_bad_range.pdb'
+        with open(inpdb) as fh:
+            contents = fh.read()
+        contents = contents.replace('TEMPLATE BEGIN:              401',
+                                    'TEMPLATE BEGIN:              901')
+        with open(inpdb_bad_range, 'w') as fh:
+            fh.write(contents)
+        _ = subprocess.check_call([sys.executable, script, '-r', repo,
+                                   '-a', align, inpdb_bad_range, out])
+        # Information on asyms and residue ranges will be missing
+        with open(out) as fh:
+            f1_contents = fh.read()
+        with open(outaligncif) as fh:
+            f2_contents = fh.read()
+        f2_contents = f2_contents.replace('polymer 1 1 A A 1 1 T',
+                                          'polymer 1 1 A ? ? 1 T')
+        f2_contents = f2_contents.replace('1 1 403 837', '1 1 ? ?')
+        self.assertEqual(f1_contents, f2_contents)
+
+        os.unlink(inpdb_bad_range)
+        os.unlink(out)
+
     def test_bulk_headers(self):
         """Test modbase_pdb_to_cif script without bulk-headers PDB"""
         inpdb = os.path.join(INPUTDIR, 'test_bulk_headers.pdb')
