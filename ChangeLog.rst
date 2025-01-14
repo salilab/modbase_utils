@@ -1,3 +1,13 @@
+1.1 - 2025-01-14
+================
+ - Multiple directories can now be given to search for template mmCIF files
+   with the ``--repo`` or ``-r`` option. This is used in ModBase itself to
+   also search for obsolete templates.
+ - If template information cannot be extracted (e.g. if the template PDB
+   code is invalid, or the scheme table is missing or incorrect) provide
+   an output file with "unknown" mmCIF values for template entity, asym,
+   and seqids.
+
 1.0 - 2024-09-30
 ================
  - Information about the database sequence for the model (e.g. in
