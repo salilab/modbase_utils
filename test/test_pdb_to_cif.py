@@ -20,7 +20,6 @@ outaligncif = os.path.join(INPUTDIR, 'output_with_align.cif')
 
 class Tests(unittest.TestCase):
     def compare_files(self, f1, f2):
-        self.maxDiff=None
         with open(f1) as fh:
             f1_contents = fh.read()
         with open(f2) as fh:
