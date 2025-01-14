@@ -13,5 +13,5 @@ This should preserve all information in the PDB file.
 This utility requires a local mirror of PDB in compressed mmCIF format.
 Use the `-r` command line option to point to the location of this mirror.
 It also needs the [python-modelcif](https://github.com/ihmwg/python-modelcif)
-library, version 1.1 or later, to read the mmCIF files for any template
+library, version 1.3 or later, to read the mmCIF files for any template
 structures and to write the final mmCIF or BinaryCIF ModBase file.
