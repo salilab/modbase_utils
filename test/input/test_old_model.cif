@@ -4,9 +4,9 @@ _struct.entry_id model_9abae378d2aa2c1a5b21c65c98564dc0
 _struct.pdbx_model_details .
 _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of'
-_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/d18ba38/base/mmcif_ma-core.dic
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/80e1e22/dist/mmcif_ma.dic
 _audit_conform.dict_name mmcif_ma.dic
-_audit_conform.dict_version 1.4.6
+_audit_conform.dict_version 1.4.7
 _database_2.database_code 9abae378d2aa2c1a5b21c65c98564dc0
 _database_2.database_id MODBASE
 #
@@ -313,14 +313,24 @@ _ma_protocol_step.output_data_group_id
 #
 loop_
 _ma_model_list.ordinal_id
-_ma_model_list.model_id
-_ma_model_list.model_group_id
 _ma_model_list.model_name
-_ma_model_list.model_group_name
 _ma_model_list.data_id
 _ma_model_list.model_type
 _ma_model_list.model_type_other_details
-1 1 1 'Target Structure' 'All models' 4 'Homology model' .
+1 'Target Structure' 4 'Homology model' .
+#
+#
+loop_
+_ma_model_group.id
+_ma_model_group.name
+_ma_model_group.details
+1 'All models' .
+#
+#
+loop_
+_ma_model_group_link.group_id
+_ma_model_group_link.model_id
+1 1
 #
 #
 loop_

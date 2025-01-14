@@ -4,9 +4,9 @@ _struct.entry_id model_66b8fbc891f519c1ba8d8ad2e62c6caa
 _struct.pdbx_model_details .
 _struct.pdbx_structure_determination_methodology computational
 _struct.title 'Model of S54091 hypothetical protein YPR070w - yeast (Saccha'
-_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/d18ba38/base/mmcif_ma-core.dic
+_audit_conform.dict_location https://raw.githubusercontent.com/ihmwg/ModelCIF/80e1e22/dist/mmcif_ma.dic
 _audit_conform.dict_name mmcif_ma.dic
-_audit_conform.dict_version 1.4.6
+_audit_conform.dict_version 1.4.7
 _database_2.database_code 66b8fbc891f519c1ba8d8ad2e62c6caa
 _database_2.database_id MODBASE
 #
@@ -144,8 +144,9 @@ _ma_target_ref_db_details.ncbi_taxonomy_id
 _ma_target_ref_db_details.organism_scientific
 _ma_target_ref_db_details.seq_db_sequence_version_date
 _ma_target_ref_db_details.seq_db_sequence_checksum
-1 UNP . B5VTL7_YEAS6 B5VTL7 ? 9 10 . . . .
-1 Other RefSeq NP_015395.1 NP_015395 ? 9 10 . . . .
+_ma_target_ref_db_details.is_primary
+1 UNP . B5VTL7_YEAS6 B5VTL7 ? 9 10 . . . . .
+1 Other RefSeq NP_015395.1 NP_015395 ? 9 10 . . . . .
 #
 #
 loop_
@@ -264,14 +265,24 @@ _ma_protocol_step.output_data_group_id
 #
 loop_
 _ma_model_list.ordinal_id
-_ma_model_list.model_id
-_ma_model_list.model_group_id
 _ma_model_list.model_name
-_ma_model_list.model_group_name
 _ma_model_list.data_id
 _ma_model_list.model_type
 _ma_model_list.model_type_other_details
-1 1 1 'Target Structure' 'All models' 3 'Homology model' .
+1 'Target Structure' 3 'Homology model' .
+#
+#
+loop_
+_ma_model_group.id
+_ma_model_group.name
+_ma_model_group.details
+1 'All models' .
+#
+#
+loop_
+_ma_model_group_link.group_id
+_ma_model_group_link.model_id
+1 1
 #
 #
 loop_
